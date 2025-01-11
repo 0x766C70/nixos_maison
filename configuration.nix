@@ -48,9 +48,10 @@
     isNormalUser = true;
     description = "mlc";
     group = "mlc";
-    extraGroups = [ "transmission" ];
+    extraGroups = [ "transmission" "sftponly" ];
     homeMode = "770"; 
     packages = with pkgs; [];
+    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
   users.users.transmission.extraGroups = [ "mlc" ];
 
@@ -141,6 +142,12 @@
       X11Forwarding = false;
       PermitRootLogin = "prohibit-password";
     };
+    extraConfig = ''
+      Match Group sftponly
+        ChrootDirectory /home/%u
+        ForceCommand internal-sftp
+        AllowTcpForwarding no
+    '';
   };
   services.openvpn.servers = {
     officeVPN  = { config = '' config /root/fdn.conf ''; };
@@ -174,6 +181,21 @@
         "/home/mlc/animations" = {d.mode = "0770";};
       };
       "download_folders" = {
+        "/home/mlc/docu" = {d.mode = "0770";};
+      };
+      "download_folders" = {
+        "/home/mlc/ebooks" = {d.mode = "0770";};
+      };
+      "download_folders" = {
+        "/home/mlc/games" = {d.mode = "0770";};
+      };
+      "download_folders" = {
+        "/home/mlc/movies" = {d.mode = "0770";};
+      };
+      "download_folders" = {
+        "/home/mlc/tvshows" = {d.mode = "0770";};
+      };
+      "download_folders" = {
         "/home/mlc/downloads" = {d.mode = "0770";};
       };
     };
@@ -183,7 +205,22 @@
     device = "192.168.100.129:/data/animations";
     fsType = "nfs";
   };
-
+  fileSystems."/home/mlc/docu" = {
+    device = "192.168.100.129:/data/docu";
+    fsType = "nfs";
+  };
+  fileSystems."/home/mlc/ebooks" = {
+    device = "192.168.100.129:/data/ebooks";
+    fsType = "nfs";
+  };
+  fileSystems."/home/mlc/movies" = {
+    device = "192.168.100.129:/data/movies";
+    fsType = "nfs";
+  };
+  fileSystems."/home/mlc/tvshows" = {
+    device = "192.168.100.129:/data/tvshows";
+    fsType = "nfs";
+  };
   fileSystems."/home/mlc/downloads" = {
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
