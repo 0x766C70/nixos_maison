@@ -46,13 +46,24 @@
   # Configure console keymap
   console.keyMap = "us-acentos";
 
+  users.groups.mlc = {};
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin"];
+    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc"];
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
+  };
+
+  # Define a user account. Don't forget to set a password with ‘passwd’.
+  users.users.mlc = {
+    isNormalUser = true;
+    description = "mlc";
+    group = "mlc";
+    homeMode = "770"; 
+    packages = with pkgs; [];
   };
 
   # Enable automatic login for the user.
@@ -124,7 +135,8 @@
     usbutils
     nfs-utils
 
-
+    # apps
+    transmission_4-gtk
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -144,7 +156,25 @@
     officeVPN  = { config = '' config /root/fdn.conf ''; };
   };
 
-  fileSystems."/home/vlp/test" = {
+  services.transmission = { 
+    enable = true; #Enable transmission daemon
+    openRPCPort = true; #Open firewall for RPC
+    settings = { #Override default settings
+      download-dir = "/home/vlp/";
+      rpc-bind-address = "0.0.0.0"; #Bind to own IP
+      rpc-whitelist = "127.0.0.1,192.168.100.135"; #Whitelist your remote machine (10.0.0.1 in this example)
+    };
+  };
+
+  systemd={
+    tmpfiles.settings = {
+      "nas_folders" = {
+        "/home/mlc/animations" = {d.mode = "0770";};
+      };
+    };
+  }; 
+
+  fileSystems."/home/mlc/animations" = {
     device = "192.168.100.129:/data/animations";
     fsType = "nfs";
   };
