@@ -153,7 +153,6 @@
       download-dir = "/home/mlc/downloads/";
       rpc-bind-address = "0.0.0.0";
       rpc-host-whitelist = "dl.vlp.fdn.fr";
-      #rpc-whitelist = "0.0.0.0, 192.168.100.135, 80.67.*.*";
       rpc-whitelist = "*";
     };
   };
