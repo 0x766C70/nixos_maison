@@ -127,8 +127,8 @@
 
     # apps
     transmission_4-gtk
+    caddy
   ];
-
 
   # Service configurations
   services.openssh = {
@@ -152,10 +152,22 @@
     settings = { 
       download-dir = "/home/mlc/downloads/";
       rpc-bind-address = "0.0.0.0";
-      rpc-whitelist = "127.0.0.1,192.168.100.135";
+      rpc-host-whitelist = "dl.vlp.fdn.fr";
+      #rpc-whitelist = "0.0.0.0, 192.168.100.135, 80.67.*.*";
+      rpc-whitelist = "*";
     };
   };
-
+  
+  services.caddy = {
+    enable = true;
+    virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
+    basic_auth {
+      mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+    }
+    reverse_proxy http://localhost:9091
+    '';
+  };
+  
   # NAS folder mounting
   systemd={
     tmpfiles.settings = {
@@ -180,7 +192,10 @@
 
   # Firewall configuration
   networking.nftables.enable = true;
-
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [ 80 443 1337];
+  };
   # Incus configuration
   virtualisation.incus.enable = true;
  
