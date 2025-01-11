@@ -1,30 +1,22 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, pkgs, ... }:
 
 {
   imports =
-    [ # Include the results of the hardware scan.
+    [
       ./hardware-configuration.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
-  networking.hostName = "maison"; # Define your hostname.
+  networking.hostName = "maison";
 
   # Enable networking
   networking.networkmanager.enable = true;
 
-  # Set your time zone.
+  # Local settings.
   time.timeZone = "Europe/Paris";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
-
   i18n.extraLocaleSettings = {
     LC_ADDRESS = "fr_FR.UTF-8";
     LC_IDENTIFICATION = "fr_FR.UTF-8";
@@ -36,35 +28,31 @@
     LC_TELEPHONE = "fr_FR.UTF-8";
     LC_TIME = "fr_FR.UTF-8";
   };
-
-  # Configure keymap in X11
   services.xserver.xkb = {
     layout = "us";
     variant = "intl";
   };
-
-  # Configure console keymap
   console.keyMap = "us-acentos";
 
+  # Group definitions
   users.groups.mlc = {};
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # User definition
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc"];
+    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" ];
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
-
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.mlc = {
     isNormalUser = true;
     description = "mlc";
     group = "mlc";
+    extraGroups = [ "transmission" ];
     homeMode = "770"; 
     packages = with pkgs; [];
   };
+  users.users.transmission.extraGroups = [ "mlc" ];
 
   # Enable automatic login for the user.
   services.getty.autologinUser = "vlp";
@@ -72,8 +60,10 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # Flakes setuo
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
+  # Package definition
   environment.systemPackages = with pkgs; [
     
     # basic tools
@@ -115,17 +105,17 @@
     gnupg
 
     # productivity
-    glow # markdown previewer in terminal
+    glow
 
     # monitoring
-    btop  # replacement of htop/nmon
-    iotop # io monitoring
-    iftop # network monitoring
+    btop
+    iotop
+    iftop
 
     # system call monitoring
-    strace # system call monitoring
-    ltrace # library call monitoring
-    lsof # list open files
+    strace
+    ltrace
+    lsof
 
     # system tools
     sysstat
@@ -139,37 +129,41 @@
     transmission_4-gtk
   ];
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
 
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-
+  # Service configurations
+  services.openssh = {
+    enable = true;
+    ports = [ 1337 ];
+    settings = {
+      PasswordAuthentication = true;
+      AllowUsers = [ "vlp" "mlc" ];
+      UseDns = true;
+      X11Forwarding = false;
+      PermitRootLogin = "prohibit-password";
+    };
+  };
   services.openvpn.servers = {
     officeVPN  = { config = '' config /root/fdn.conf ''; };
   };
 
   services.transmission = { 
-    enable = true; #Enable transmission daemon
-    openRPCPort = true; #Open firewall for RPC
-    settings = { #Override default settings
-      download-dir = "/home/vlp/";
-      rpc-bind-address = "0.0.0.0"; #Bind to own IP
-      rpc-whitelist = "127.0.0.1,192.168.100.135"; #Whitelist your remote machine (10.0.0.1 in this example)
+    enable = true; 
+    openRPCPort = true;
+    settings = { 
+      download-dir = "/home/mlc/downloads/";
+      rpc-bind-address = "0.0.0.0";
+      rpc-whitelist = "127.0.0.1,192.168.100.135";
     };
   };
 
+  # NAS folder mounting
   systemd={
     tmpfiles.settings = {
       "nas_folders" = {
         "/home/mlc/animations" = {d.mode = "0770";};
+      };
+      "download_folders" = {
+        "/home/mlc/downloads" = {d.mode = "0770";};
       };
     };
   }; 
@@ -179,20 +173,18 @@
     fsType = "nfs";
   };
 
-  virtualisation.incus.enable = true;
-  networking.nftables.enable = true;
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  # networking.firewall.enable = false;
+  fileSystems."/home/mlc/downloads" = {
+    device = "/dev/mapper/encrypted_drive";
+    fsType = "ext4";
+  };
 
-  # This value determines the NixOS release from which the default
-  # settings for stateful data, like file locations and database versions
-  # on your system were taken. It‘s perfectly fine and recommended to leave
-  # this value at the release version of the first install of this system.
-  # Before changing this value read the documentation for this option
-  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "24.11"; # Did you read the comment?
+  # Firewall configuration
+  networking.nftables.enable = true;
+
+  # Incus configuration
+  virtualisation.incus.enable = true;
+ 
+  # Global
+  system.stateVersion = "24.11";
 
 }
