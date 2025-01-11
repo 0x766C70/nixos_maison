@@ -36,6 +36,7 @@
 
   # Group definitions
   users.groups.mlc = {};
+  users.groups.sftponly = {};
   # User definition
   users.users.vlp = {
     isNormalUser = true;
