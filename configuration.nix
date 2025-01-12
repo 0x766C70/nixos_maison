@@ -43,7 +43,7 @@
     description = "vlp";
     extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" ];
     packages = with pkgs; [];
-    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
+    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxSyizcTdVqG6+P+/PCq1idtdtDGz8RbiokmjEU0qbI root@LibreELEC" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
   users.users.mlc = {
     isNormalUser = true;
@@ -146,7 +146,7 @@
     extraConfig = ''
       Subsystem sftp internal-sftp
       Match User mlc
-        ChrootDirectory %h
+        ChrootDirectory /home/mlc/
         ForceCommand internal-sftp
         X11Forwarding no
         AllowTcpForwarding no
@@ -200,6 +200,9 @@
       };
       "download_folders" = {
         "/home/mlc/downloads" = {d.mode = "0770";};
+      };
+      "mlc_home_folders" = {
+        "/home/mlc/" = {d.user = "root"; d.group = "root"; d.mode = "0755";};
       };
     };
   }; 
