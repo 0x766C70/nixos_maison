@@ -49,7 +49,7 @@
     isNormalUser = true;
     description = "mlc";
     group = "mlc";
-    extraGroups = [ "transmission" "sftponly" ];
+    extraGroups = [ "transmission"];
     homeMode = "770"; 
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
@@ -144,9 +144,11 @@
       PermitRootLogin = "prohibit-password";
     };
     extraConfig = ''
-      Match Group sftponly
-        ChrootDirectory /home/%u
+      Subsystem sftp internal-sftp
+      Match User mlc
+        ChrootDirectory %h
         ForceCommand internal-sftp
+        X11Forwarding no
         AllowTcpForwarding no
     '';
   };
