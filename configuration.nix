@@ -204,6 +204,9 @@
       "mlc_home_folders" = {
         "/home/mlc/" = {d.user = "root"; d.group = "root"; d.mode = "0755";};
       };
+      "nextcloud__folders" = {
+        "/home/vlp/nextcloud" = {d.mode = "0700";};
+      };
     };
   }; 
 
@@ -230,6 +233,10 @@
   fileSystems."/home/mlc/downloads" = {
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
+  };
+  fileSystems."/home/vlp/nextcloud" = {
+    device = "192.168.100.129:/data/nextcloud";
+    fsType = "nfs";
   };
 
   # Firewall configuration
