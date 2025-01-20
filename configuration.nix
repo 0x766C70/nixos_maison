@@ -13,6 +13,11 @@
 
   # Enable networking
   networking.networkmanager.enable = true;
+  
+  # Environment variables
+  environment.sessionVariables = rec {
+    EDITOR  = "vim";
+  };
 
   # Local settings.
   time.timeZone = "Europe/Paris";
@@ -43,16 +48,15 @@
     description = "vlp";
     extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" ];
     packages = with pkgs; [];
-    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxSyizcTdVqG6+P+/PCq1idtdtDGz8RbiokmjEU0qbI root@LibreELEC" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
+    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
   users.users.mlc = {
     isNormalUser = true;
     description = "mlc";
     group = "mlc";
     extraGroups = [ "transmission"];
-    homeMode = "770"; 
     packages = with pkgs; [];
-    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
+    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxSyizcTdVqG6+P+/PCq1idtdtDGz8RbiokmjEU0qbI root@LibreELEC" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
   users.users.transmission.extraGroups = [ "mlc" ];
 
@@ -201,14 +205,18 @@
       "download_folders" = {
         "/home/mlc/downloads" = {d.mode = "0770";};
       };
-      "mlc_home_folders" = {
-        "/home/mlc/" = {d.user = "root"; d.group = "root"; d.mode = "0755";};
-      };
+      #"mlc_home_folders" = {
+      #  "/home/mlc/" = {d.user = "root"; d.group = "root"; d.mode = "0755";};
+      #};
       "nextcloud__folders" = {
         "/home/vlp/nextcloud" = {d.mode = "0700";};
       };
     };
   }; 
+
+  systemd.tmpfiles.rules = [
+    "d /home/mlc 0755 root root - -"
+  ];
 
   fileSystems."/home/mlc/animations" = {
     device = "192.168.100.129:/data/animations";
@@ -245,6 +253,8 @@
     enable = true;
     allowedTCPPorts = [ 80 443 1337];
   };
+  networking.firewall.trustedInterfaces = [ "incusbr0" ];
+  
   # Incus configuration
   virtualisation.incus.enable = true;
  

@@ -8,6 +8,7 @@
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     cowsay
+    epr
   ];
 
   # basic configuration of git, please change to your own
