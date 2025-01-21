@@ -174,10 +174,13 @@
   services.caddy = {
     enable = true;
     virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
-    basic_auth {
-      mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
-    }
-    reverse_proxy http://localhost:9091
+      basic_auth {
+        mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+      }
+      reverse_proxy http://localhost:9091
+    '';
+    virtualHosts."sandbox.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://localhost:8080
     '';
   };
   
@@ -251,12 +254,24 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337];
+    allowedTCPPorts = [ 80 443 1337 8080];
   };
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
   
   # Incus configuration
   virtualisation.incus.enable = true;
+
+  # Nextcloud conf
+  
+  environment.etc."nextcloud-admin-pass".text = "vlp123";
+  services.nextcloud = {
+    enable = true;
+    package = pkgs.nextcloud30;
+    hostName = "localhost";
+    config.adminpassFile = "/etc/nextcloud-admin-pass";
+    config.dbtype = "sqlite";
+  };
+  services.nginx.virtualHosts."localhost".listen = [ { addr = "127.0.0.1"; port = 8080; } ];
  
   # Global
   system.stateVersion = "24.11";
