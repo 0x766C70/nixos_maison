@@ -239,10 +239,10 @@
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
   };
-  #fileSystems."/var/lib/nextcloud/data" = {
-  #  device = "192.168.100.129:/data/nextcloud";
-  #  fsType = "nfs";
-  #};
+  fileSystems."/var/lib/nextcloud/data" = {
+    device = "192.168.100.129:/data/nextcloud";
+    fsType = "nfs";
+  };
 
   # Firewall configuration
   networking.nftables.enable = true;
@@ -275,11 +275,17 @@
         overwriteProtocol = "https";
         default_phone_region = "FR";
         trusted_domains = [ "sandbox.vlp.fdn.fr" ];
+        trusted_proxies = [ "192.168.100.140" ];
+        log_type = "file";
     };
     extraApps = {
       inherit (config.services.nextcloud.package.packages.apps) news contacts calendar tasks;
     };
     extraAppsEnable = true;
+    phpOptions."opcache.interned_strings_buffer" = "13";
+ 
+    # extra command
+    #nextcloud-occ maintenance:repair --include-expensive
   };
   services.nginx.virtualHosts."localhost".listen = [ { addr = "127.0.0.1"; port = 8080; } ];
  
