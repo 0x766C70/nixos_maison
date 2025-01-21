@@ -208,12 +208,6 @@
       "download_folders" = {
         "/home/mlc/downloads" = {d.mode = "0770";};
       };
-      #"mlc_home_folders" = {
-      #  "/home/mlc/" = {d.user = "root"; d.group = "root"; d.mode = "0755";};
-      #};
-      "nextcloud__folders" = {
-        "/home/vlp/nextcloud" = {d.mode = "0700";};
-      };
     };
   }; 
 
@@ -245,16 +239,16 @@
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
   };
-  fileSystems."/home/vlp/nextcloud" = {
-    device = "192.168.100.129:/data/nextcloud";
-    fsType = "nfs";
-  };
+  #fileSystems."/var/lib/nextcloud/data" = {
+  #  device = "192.168.100.129:/data/nextcloud";
+  #  fsType = "nfs";
+  #};
 
   # Firewall configuration
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8080];
+    allowedTCPPorts = [ 80 443 1337 8080 5432];
   };
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
   
@@ -268,12 +262,15 @@
     enable = true;
     package = pkgs.nextcloud30;
     hostName = "localhost";
+    database.createLocally = true;
     configureRedis = true;
     maxUploadSize = "1G";
     https = true;
     autoUpdateApps.enable = true;
-    config.adminpassFile = "/etc/nextcloud-admin-pass";
-    config.dbtype = "sqlite";
+    config = {
+        adminpassFile = "/etc/nextcloud-admin-pass";
+        dbtype = "pgsql";
+    };
     settings = {
         overwriteProtocol = "https";
         default_phone_region = "FR";
