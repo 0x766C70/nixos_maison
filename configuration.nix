@@ -262,14 +262,27 @@
   virtualisation.incus.enable = true;
 
   # Nextcloud conf
-  
   environment.etc."nextcloud-admin-pass".text = "vlp123";
+  environment.etc."nextcloud-vlp-pass".text = "vlp123";
   services.nextcloud = {
     enable = true;
     package = pkgs.nextcloud30;
     hostName = "localhost";
+    configureRedis = true;
+    maxUploadSize = "1G";
+    https = true;
+    autoUpdateApps.enable = true;
     config.adminpassFile = "/etc/nextcloud-admin-pass";
     config.dbtype = "sqlite";
+    settings = {
+        overwriteProtocol = "https";
+        default_phone_region = "FR";
+        trusted_domains = [ "sandbox.vlp.fdn.fr" ];
+    };
+    extraApps = {
+      inherit (config.services.nextcloud.package.packages.apps) news contacts calendar tasks;
+    };
+    extraAppsEnable = true;
   };
   services.nginx.virtualHosts."localhost".listen = [ { addr = "127.0.0.1"; port = 8080; } ];
  
