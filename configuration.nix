@@ -54,7 +54,7 @@
     isNormalUser = true;
     description = "mlc";
     group = "mlc";
-    extraGroups = [ "transmission"];
+    extraGroups = [ "transmission" "nextcloud" ];
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxSyizcTdVqG6+P+/PCq1idtdtDGz8RbiokmjEU0qbI root@LibreELEC" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
@@ -109,6 +109,7 @@
     gawk
     zstd
     gnupg
+    pass
 
     # productivity
     glow
@@ -130,6 +131,7 @@
     pciutils 
     usbutils
     nfs-utils
+    go
 
     # apps
     transmission_4-gtk
@@ -150,7 +152,7 @@
     extraConfig = ''
       Subsystem sftp internal-sftp
       Match User mlc
-        ChrootDirectory /home/mlc/
+        ChrootDirectory /home/mlc/media/
         ForceCommand internal-sftp
         X11Forwarding no
         AllowTcpForwarding no
@@ -164,7 +166,7 @@
     enable = true; 
     openRPCPort = true;
     settings = { 
-      download-dir = "/home/mlc/downloads/";
+      download-dir = "/home/mlc/media/downloads/";
       rpc-bind-address = "0.0.0.0";
       rpc-host-whitelist = "dl.vlp.fdn.fr";
       rpc-whitelist = "*";
@@ -182,60 +184,48 @@
     virtualHosts."sandbox.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080
     '';
+    virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://localhost:8080
+    '';
   };
   
   # NAS folder mounting
-  systemd={
-    tmpfiles.settings = {
-      "nas_folders" = {
-        "/home/mlc/animations" = {d.mode = "0770";};
-      };
-      "download_folders" = {
-        "/home/mlc/docu" = {d.mode = "0770";};
-      };
-      "download_folders" = {
-        "/home/mlc/ebooks" = {d.mode = "0770";};
-      };
-      "download_folders" = {
-        "/home/mlc/games" = {d.mode = "0770";};
-      };
-      "download_folders" = {
-        "/home/mlc/movies" = {d.mode = "0770";};
-      };
-      "download_folders" = {
-        "/home/mlc/tvshows" = {d.mode = "0770";};
-      };
-      "download_folders" = {
-        "/home/mlc/downloads" = {d.mode = "0770";};
-      };
-    };
-  }; 
-
   systemd.tmpfiles.rules = [
-    "d /home/mlc 0755 root root - -"
+    "d /home/mlc/media/ 0755 root root - -"
+    "d /home/mlc/media/animations 0750 mlc mlc - -"
+    "d /home/mlc/media/docu 0750 mlc mlc - -"
+    "d /home/mlc/media/ebooks 0750 mlc mlc - -"
+    "d /home/mlc/media/games 0750 mlc mlc - -"
+    "d /home/mlc/media/movies 0750 mlc mlc - -"
+    "d /home/mlc/media/tvshows 0750 mlc mlc - -"
+    "d /home/mlc/media/downloads 0750 mlc mlc - -"
   ];
 
-  fileSystems."/home/mlc/animations" = {
+  fileSystems."/home/mlc/media/animations" = {
     device = "192.168.100.129:/data/animations";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/docu" = {
+  fileSystems."/home/mlc/media/docu" = {
     device = "192.168.100.129:/data/docu";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/ebooks" = {
+  fileSystems."/home/mlc/media/ebooks" = {
     device = "192.168.100.129:/data/ebooks";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/movies" = {
+  fileSystems."/home/mlc/media/games" = {
+    device = "192.168.100.129:/data/ebooks";
+    fsType = "nfs";
+  };
+  fileSystems."/home/mlc/media/movies" = {
     device = "192.168.100.129:/data/movies";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/tvshows" = {
+  fileSystems."/home/mlc/media/tvshows" = {
     device = "192.168.100.129:/data/tvshows";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/downloads" = {
+  fileSystems."/home/mlc/media/downloads" = {
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
   };
@@ -244,6 +234,7 @@
     fsType = "nfs";
   };
 
+  
   # Firewall configuration
   networking.nftables.enable = true;
   networking.firewall = {
@@ -274,15 +265,30 @@
     settings = {
         overwriteProtocol = "https";
         default_phone_region = "FR";
-        trusted_domains = [ "sandbox.vlp.fdn.fr" ];
+        trusted_domains = [ "sandbox.vlp.fdn.fr" "nuage.vlp.fdn.fr"];
         trusted_proxies = [ "192.168.100.140" ];
         log_type = "file";
+        enabledPreviewProviders = [
+          "OC\\Preview\\BMP"
+          "OC\\Preview\\GIF"
+          "OC\\Preview\\JPEG"
+          "OC\\Preview\\Krita"
+          "OC\\Preview\\MarkDown"
+          "OC\\Preview\\MP3"
+          "OC\\Preview\\OpenDocument"
+          "OC\\Preview\\PNG"
+          "OC\\Preview\\TXT"
+          "OC\\Preview\\XBitmap"
+          "OC\\Preview\\HEIC"
+       ];
     };
     extraApps = {
       inherit (config.services.nextcloud.package.packages.apps) news contacts calendar tasks;
     };
     extraAppsEnable = true;
     phpOptions."opcache.interned_strings_buffer" = "13";
+
+
  
     # extra command
     #nextcloud-occ maintenance:repair --include-expensive
