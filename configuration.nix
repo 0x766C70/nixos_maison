@@ -152,7 +152,7 @@
     extraConfig = ''
       Subsystem sftp internal-sftp
       Match User mlc
-        ChrootDirectory /home/mlc/media/
+        ChrootDirectory %h
         ForceCommand internal-sftp
         X11Forwarding no
         AllowTcpForwarding no
@@ -191,7 +191,8 @@
   
   # NAS folder mounting
   systemd.tmpfiles.rules = [
-    "d /home/mlc/media/ 0755 root root - -"
+    "d /home/mlc/ 0755 root root - -"
+    "d /home/mlc/media/ 0750 mlc mlc - -"
     "d /home/mlc/media/animations 0750 mlc mlc - -"
     "d /home/mlc/media/docu 0750 mlc mlc - -"
     "d /home/mlc/media/ebooks 0750 mlc mlc - -"
