@@ -200,6 +200,7 @@
     "d /home/mlc/media/movies 0750 mlc mlc - -"
     "d /home/mlc/media/tvshows 0750 mlc mlc - -"
     "d /home/mlc/media/downloads 0750 mlc mlc - -"
+    "d /home/vlp/backup 0750 vlp vlp - -"
   ];
 
   fileSystems."/home/mlc/media/animations" = {
@@ -228,6 +229,10 @@
   };
   fileSystems."/home/mlc/media/downloads" = {
     device = "/dev/mapper/encrypted_drive";
+    fsType = "ext4";
+  };
+  fileSystems."/home/vlp/backup" = {
+    device = "/dev/mapper/backup_drive";
     fsType = "ext4";
   };
   fileSystems."/var/lib/nextcloud/data" = {
@@ -289,12 +294,36 @@
     extraAppsEnable = true;
     phpOptions."opcache.interned_strings_buffer" = "13";
 
-
- 
     # extra command
     #nextcloud-occ maintenance:repair --include-expensive
   };
   services.nginx.virtualHosts."localhost".listen = [ { addr = "127.0.0.1"; port = 8080; } ];
+
+  # Enable cron service
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+      "0 3 * * *      root    rsync -r -t -x -vv --progress --exclude '/var/lib/nextcloud/data/vlp/files_trashbin/*' --del /var/lib/nextcloud/data/ /home/vlp/backup/nextcloud >> /var/log/cron.log"
+    ];
+  };
+  systemd.timers."backup_nc" = {
+    wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar="*-*-* 4:00:00";
+        #Persistent = true; 
+        Unit = "backup_nc.service";
+      };
+  };
+
+  systemd.services."backup_nc" = {
+    script = ''
+      ${pkgs.rsync}/bin/rsync -r -t -x --progress --del /var/lib/nextcloud/data/ /home/vlp/backup/nextcloud >> /var/log/timer_nc.log
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+  };
  
   # Global
   system.stateVersion = "24.11";
