@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, input, ... }:
 
 {
   imports =
@@ -252,9 +252,18 @@
   # Incus configuration
   virtualisation.incus.enable = true;
 
+  age.secrets.nextcloud = {
+    file = ../secrets/nextcloud.age;
+    owner = "nextcloud";
+    group = "nextcloud";
+  };
+
+  age.secrets.prom = {
+    file = ../secrets/prom.age;
+  };
+
   # Nextcloud conf
   environment.etc."nextcloud-admin-pass".text = "vlp123";
-  environment.etc."nextcloud-vlp-pass".text = "vlp123";
   services.nextcloud = {
     enable = true;
     package = pkgs.nextcloud30;
@@ -265,7 +274,7 @@
     https = true;
     autoUpdateApps.enable = true;
     config = {
-        adminpassFile = "/etc/nextcloud-admin-pass";
+        adminpassFile = config.age.secrets.nextcloud.path;
         dbtype = "pgsql";
     };
     settings = {
@@ -299,13 +308,6 @@
   };
   services.nginx.virtualHosts."localhost".listen = [ { addr = "127.0.0.1"; port = 8080; } ];
 
-  # Enable cron service
-  services.cron = {
-    enable = true;
-    systemCronJobs = [
-      "0 3 * * *      root    rsync -r -t -x -vv --progress --exclude '/var/lib/nextcloud/data/vlp/files_trashbin/*' --del /var/lib/nextcloud/data/ /home/vlp/backup/nextcloud >> /var/log/cron.log"
-    ];
-  };
   systemd.timers."backup_nc" = {
     wantedBy = [ "timers.target" ];
       timerConfig = {
@@ -324,8 +326,56 @@
       User = "root";
     };
   };
- 
+
+  systemd.timers."my_ip" = {
+    wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar="*-*-* 2:00:00";
+        Unit = "my_ip.service";
+      };
+  };
+
+  systemd.services."my_ip" = {
+    script = ''
+      ${pkgs.curl}/bin/curl https://api.ipify.org\?format\=json 2> /dev/null | ${pkgs.jq}/bin/jq --raw-output .ip > /var/log/mon_ip.log
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+  };
+
+  # Prometheus
+
+  services.prometheus.exporters.node = {
+    enable = true;
+    port = 9000;
+    enabledCollectors = [ "systemd" ];
+    extraFlags = [ "--collector.ethtool" "--collector.softirqs" "--collector.tcpstat" "--collector.wifi" ];
+  };
+
+  services.prometheus = {
+    enable = true;
+    globalConfig.scrape_interval = "10s"; # "1m"
+    scrapeConfigs = [
+    {
+      job_name = "nuc_node";
+      static_configs = [{
+        targets = [ "localhost:${toString config.services.prometheus.exporters.node.port}" ];
+      }];
+    }
+    ];
+    remoteWrite = [
+    {
+      url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
+      basic_auth = {
+        username =  "737153";
+        password = config.age.secrets.prom.path;
+      };
+    }
+    ];
+  };
+
   # Global
   system.stateVersion = "24.11";
-
 }
