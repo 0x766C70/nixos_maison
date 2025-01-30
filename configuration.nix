@@ -19,6 +19,8 @@
     EDITOR  = "vim";
   };
 
+  hardware.sane.enable = true;
+
   # Local settings.
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -46,7 +48,7 @@
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" ];
+    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" "scanner" ];
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
@@ -132,12 +134,13 @@
     usbutils
     nfs-utils
     go
-
+    epsonscan2
+    
     # apps
     transmission_4-gtk
     caddy
   ];
-
+  hardware.sane.extraBackends = [ pkgs.epkowa ];
   # Service configurations
   services.openssh = {
     enable = true;
@@ -201,6 +204,7 @@
     "d /home/mlc/media/tvshows 0750 mlc mlc - -"
     "d /home/mlc/media/downloads 0750 mlc mlc - -"
     "d /home/vlp/backup 0750 vlp vlp - -"
+    "d /home/vlp/partages 0750 vlp vlp - -"
   ];
 
   fileSystems."/home/mlc/media/animations" = {
@@ -235,6 +239,10 @@
     device = "/dev/mapper/backup_drive";
     fsType = "ext4";
   };
+  fileSystems."/home/vlp/partages" = {
+    device = "192.168.100.129:/data/partages";
+    fsType = "nfs";
+  };
   fileSystems."/var/lib/nextcloud/data" = {
     device = "192.168.100.129:/data/nextcloud";
     fsType = "nfs";
@@ -252,15 +260,15 @@
   # Incus configuration
   virtualisation.incus.enable = true;
 
-  age.secrets.nextcloud = {
-    file = ../secrets/nextcloud.age;
-    owner = "nextcloud";
-    group = "nextcloud";
-  };
+  #age.secrets.nextcloud = {
+    #file = ./secrets/nextcloud.age;
+    #owner = "nextcloud";
+    #group = "nextcloud";
+  #};
 
-  age.secrets.prom = {
-    file = ../secrets/prom.age;
-  };
+  #age.secrets.prom = {
+  #  file = ./secrets/prom.age;
+  #};
 
   # Nextcloud conf
   environment.etc."nextcloud-admin-pass".text = "vlp123";
@@ -274,7 +282,8 @@
     https = true;
     autoUpdateApps.enable = true;
     config = {
-        adminpassFile = config.age.secrets.nextcloud.path;
+        adminpassFile = "/etc/nextcloud-admin-pass";
+        #adminpassFile = config.age.secrets.nextcloud.path;
         dbtype = "pgsql";
     };
     settings = {
@@ -370,7 +379,7 @@
       url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
       basic_auth = {
         username =  "737153";
-        password = config.age.secrets.prom.path;
+        #password = config.age.secrets.prom.path;
       };
     }
     ];

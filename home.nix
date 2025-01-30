@@ -56,6 +56,7 @@
     # set some aliases, feel free to add more or remove some
     shellAliases = {
       fr = "sudo nixos-rebuild switch --flake /home/vlp/nixos_maison";
+      scanit = "scanimage --format=jpeg --resolution=300 --mode Color -p > /home/vlp/partages/scan.jpg";
     };
   };
 
