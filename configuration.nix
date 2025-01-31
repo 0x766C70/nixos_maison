@@ -259,16 +259,17 @@
   
   # Incus configuration
   virtualisation.incus.enable = true;
-
-  #age.secrets.nextcloud = {
-    #file = ./secrets/nextcloud.age;
-    #owner = "nextcloud";
-    #group = "nextcloud";
-  #};
-
-  #age.secrets.prom = {
-  #  file = ./secrets/prom.age;
-  #};
+  
+  # agix configuration
+  age.identityPaths = [ "/root/.ssh/id_ed25519" ];
+  age.secrets.nextcloud = {
+    file = ./secrets/nextcloud.age;
+    owner = "nextcloud";
+    group = "nextcloud";
+  };
+  age.secrets.prom = {
+    file = ./secrets/prom.age;
+  };
 
   # Nextcloud conf
   environment.etc."nextcloud-admin-pass".text = "vlp123";
@@ -282,8 +283,7 @@
     https = true;
     autoUpdateApps.enable = true;
     config = {
-        adminpassFile = "/etc/nextcloud-admin-pass";
-        #adminpassFile = config.age.secrets.nextcloud.path;
+        adminpassFile = config.age.secrets.nextcloud.path;
         dbtype = "pgsql";
     };
     settings = {
@@ -379,7 +379,7 @@
       url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
       basic_auth = {
         username =  "737153";
-        #password = config.age.secrets.prom.path;
+        password = config.age.secrets.prom.path;
       };
     }
     ];
