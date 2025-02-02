@@ -348,7 +348,7 @@
 
   systemd.services."my_ip" = {
     script = ''
-      ${pkgs.curl}/bin/curl https://api.ipify.org\?format\=json 2> /dev/null | ${pkgs.jq}/bin/jq --raw-output .ip > /var/log/mon_ip.log
+      ${pkgs.curl}/bin/curl https://api.ipify.org\?format\=json 2> /dev/null | ${pkgs.jq}/bin/jq -r '"Subject: ma:son ip\nmaison ip:\(.ip)"' | ${pkgs.msmtp}/bin/msmtp thomas@criscione.fr
     '';
     serviceConfig = {
       Type = "oneshot";
@@ -393,7 +393,7 @@
     host = "smtp.fdn.fr";
     from = "maison@vlp.fdn.fr";
     user = "maison@vlp.fdn.fr";
-    #passwordeval = "$(cat ${config.age.secrets.mail.path})";
+    passwordeval = "$(cat ${config.age.secrets.mail.path})";
   };
 };
 
