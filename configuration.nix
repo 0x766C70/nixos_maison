@@ -202,7 +202,7 @@
     "d /home/mlc/media/games 0750 mlc mlc - -"
     "d /home/mlc/media/movies 0750 mlc mlc - -"
     "d /home/mlc/media/tvshows 0750 mlc mlc - -"
-    "d /home/mlc/media/downloads 0750 mlc mlc - -"
+    "d /home/mlc/media/downloads 0770 mlc mlc - -"
     "d /home/vlp/backup 0750 vlp vlp - -"
     "d /home/vlp/partages 0750 vlp vlp - -"
   ];
@@ -270,9 +270,11 @@
   age.secrets.prom = {
     file = ./secrets/prom.age;
   };
+  age.secrets.mail = {
+    file = ./secrets/mail.age;
+  };
 
   # Nextcloud conf
-  environment.etc."nextcloud-admin-pass".text = "vlp123";
   services.nextcloud = {
     enable = true;
     package = pkgs.nextcloud30;
@@ -384,6 +386,16 @@
     }
     ];
   };
+
+  programs.msmtp = {
+  enable = true;
+  accounts.default = {
+    host = "smtp.fdn.fr";
+    from = "maison@vlp.fdn.fr";
+    user = "maison@vlp.fdn.fr";
+    #passwordeval = "$(cat ${config.age.secrets.mail.path})";
+  };
+};
 
   # Global
   system.stateVersion = "24.11";
