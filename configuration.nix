@@ -269,6 +269,8 @@
   };
   age.secrets.prom = {
     file = ./secrets/prom.age;
+    owner = "prometheus";
+    group = "prometheus";
   };
   age.secrets.mail = {
     file = ./secrets/mail.age;
@@ -368,6 +370,7 @@
   services.prometheus = {
     enable = true;
     globalConfig.scrape_interval = "10s"; # "1m"
+    checkConfig = "syntax-only";
     scrapeConfigs = [
     {
       job_name = "nuc_node";
@@ -381,7 +384,7 @@
       url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
       basic_auth = {
         username =  "737153";
-        password = config.age.secrets.prom.path;
+        password_file = config.age.secrets.prom.path;
       };
     }
     ];
