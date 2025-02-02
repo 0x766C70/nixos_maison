@@ -8,7 +8,6 @@
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
     cowsay
-    epr
   ];
 
   # basic configuration of git, please change to your own
@@ -16,6 +15,15 @@
     enable = true;
     userName = "vlp";
     userEmail = "vlp@fdn.fr";
+    signing = {
+      key = "11E97E99EFF47CD9EA7445D4AB8B02134A7467D2";
+      signByDefault = true;
+    };
+    extraConfig = {
+      core = {
+      editor ="vim";
+     	};
+    };
   };
 
   # starship - an customizable prompt for any shell
@@ -48,28 +56,15 @@
   programs.bash = {
     enable = true;
     enableCompletion = true;
-    # TODO add your custom bashrc here
     bashrcExtra = ''
       export PATH="$PATH:$HOME/bin:$HOME/.local/bin:$HOME/go/bin"
     '';
-
-    # set some aliases, feel free to add more or remove some
     shellAliases = {
       fr = "sudo nixos-rebuild switch --flake /home/vlp/nixos_maison";
       scanit = "scanimage --format=jpeg --resolution=300 --mode Color -p > /home/vlp/partages/scan.jpg";
     };
   };
 
-  # This value determines the home Manager release that your
-  # configuration is compatible with. This helps avoid breakage
-  # when a new home Manager release introduces backwards
-  # incompatible changes.
-  #
-  # You can update home Manager without changing this value. See
-  # the home Manager release notes for a list of state version
-  # changes in each release.
   home.stateVersion = "24.11";
-
-  # Let home Manager install and manage itself.
   programs.home-manager.enable = true;
 }

@@ -203,7 +203,7 @@
     "d /home/mlc/media/movies 0750 mlc mlc - -"
     "d /home/mlc/media/tvshows 0750 mlc mlc - -"
     "d /home/mlc/media/downloads 0770 mlc mlc - -"
-    "d /home/vlp/backup 0750 vlp vlp - -"
+    "d /root/backup 0750 root root - -"
     "d /home/vlp/partages 0750 vlp vlp - -"
   ];
 
@@ -235,7 +235,7 @@
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
   };
-  fileSystems."/home/vlp/backup" = {
+  fileSystems."/root/backup" = {
     device = "/dev/mapper/backup_drive";
     fsType = "ext4";
   };
@@ -332,7 +332,7 @@
 
   systemd.services."backup_nc" = {
     script = ''
-      ${pkgs.rsync}/bin/rsync -r -t -x --progress --del /var/lib/nextcloud/data/ /home/vlp/backup/nextcloud >> /var/log/timer_nc.log
+      ${pkgs.rsync}/bin/rsync -r -t -x --progress --del /var/lib/nextcloud/data/ /root/backup/nextcloud >> /var/log/timer_nc.log
     '';
     serviceConfig = {
       Type = "oneshot";
