@@ -6,5 +6,6 @@ in
   "nextcloud.age".publicKeys = [ user1 user2 ];
   "prom.age".publicKeys = [ user1 user2 ];
   "mail.age".publicKeys = [ user1 user2 ];
+  "mail_perso.age".publicKeys = [ user1 user2 ];
 }
 

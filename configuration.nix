@@ -135,7 +135,14 @@
     nfs-utils
     go
     epsonscan2
-    
+   
+    # NC dependencies
+    exiftool
+    ffmpeg
+    imagemagick
+    nodejs
+    perl
+ 
     # apps
     transmission_4-gtk
     caddy
@@ -296,6 +303,7 @@
         trusted_domains = [ "sandbox.vlp.fdn.fr" "nuage.vlp.fdn.fr"];
         trusted_proxies = [ "192.168.100.140" ];
         log_type = "file";
+        memories.exiftool = "${lib.getExe pkgs.exiftool}";
         enabledPreviewProviders = [
           "OC\\Preview\\BMP"
           "OC\\Preview\\GIF"
@@ -310,12 +318,12 @@
           "OC\\Preview\\HEIC"
        ];
     };
+    #extraOptions."memories.exiftool" = "${lib.getExe pkgs.exiftool}";
     extraApps = {
-      inherit (config.services.nextcloud.package.packages.apps) news contacts calendar tasks;
+      inherit (config.services.nextcloud.package.packages.apps) news contacts calendar tasks cookbook notes memories previewgenerator;
     };
     extraAppsEnable = true;
     phpOptions."opcache.interned_strings_buffer" = "13";
-
     # extra command
     #nextcloud-occ maintenance:repair --include-expensive
   };
