@@ -1,16 +1,13 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, input, ... }:
 
 {
-  # TODO please change the username & home directory to your own
   home.username = "vlp";
   home.homeDirectory = "/home/vlp";
 
-  # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
-    cowsay
+    neomutt
   ];
-
-  # basic configuration of git, please change to your own
+  
   programs.git = {
     enable = true;
     userName = "vlp";
@@ -26,10 +23,8 @@
     };
   };
 
-  # starship - an customizable prompt for any shell
   programs.starship = {
     enable = true;
-    # custom settings
     settings = {
       add_newline = false;
       aws.disabled = true;
@@ -38,7 +33,6 @@
     };
   };
 
-  # alacritty - a cross-platform, GPU-accelerated terminal emulator
   programs.alacritty = {
     enable = true;
     # custom settings
