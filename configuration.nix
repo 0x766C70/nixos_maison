@@ -5,6 +5,7 @@
     [
       ./hardware-configuration.nix
       ./services/msmtp.nix
+      ./services/transmission.nix
     ];
 
   # Bootloader.
@@ -173,17 +174,6 @@
     officeVPN  = { config = '' config /root/fdn.conf ''; };
   };
 
-  services.transmission = { 
-    enable = true; 
-    openRPCPort = true;
-    settings = { 
-      download-dir = "/home/mlc/media/downloads/";
-      rpc-bind-address = "0.0.0.0";
-      rpc-host-whitelist = "dl.vlp.fdn.fr";
-      rpc-whitelist = "*";
-    };
-  };
-  
   services.caddy = {
     enable = true;
     virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
@@ -280,12 +270,6 @@
     owner = "prometheus";
     group = "prometheus";
   };
-  #age.secrets.mail = {
-  #  file = ./secrets/mail.age;
-  #};
-  #age.secrets.mail_perso = {
-  #  file = ./secrets/mail_perso.age;
-  #};
 
   # Nextcloud conf
   services.nextcloud = {
@@ -401,22 +385,6 @@
     }
     ];
   };
-
-  #programs.msmtp = {
-  #  enable = true;
-  #  accounts.default = {
-  #    host = "smtp.fdn.fr";
-  #    from = "maison@vlp.fdn.fr";
-  #    user = "maison@vlp.fdn.fr";
-  #    passwordeval = "$(cat ${config.age.secrets.mail.path})";
-  #  };
-  #  accounts.thomas = {
-  #    host = "smtp.fdn.fr";
-  #    from = "thomas@criscione.fr";
-  #    user = "thomas@criscione.fr";
-  #    passwordeval = "$(cat ${config.age.secrets.mail_perso.path})";
-  #  };
-  #};
 
   # Global
   system.stateVersion = "24.11";

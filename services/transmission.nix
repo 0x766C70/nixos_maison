@@ -7,7 +7,8 @@
 
   services.transmission = {                                                   
     enable = true;                                                            
-    openRPCPort = true;                                                                                                                                      
+    openRPCPort = true;
+    webHome = pkgs.flood-for-transmission; 
     settings = {       
       download-dir = "/home/mlc/media/downloads/";                                                                                                           
       rpc-bind-address = "0.0.0.0";                                           
