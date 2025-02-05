@@ -5,10 +5,10 @@
 }:
 {
   age.secrets.mail = {                                                                                                                                       
-    file = ./secrets/mail.age;                                                                                                                               
+    file = ../secrets/mail.age;                                                                                                                               
   };                                   
   age.secrets.mail_perso = {                                                                                                                                 
-    file = ./secrets/mail_perso.age;                                                                                                                         
+    file = ../secrets/mail_perso.age;                                                                                                                         
   };                
 
   programs.msmtp = {
