@@ -1,4 +1,4 @@
-{ config, pkgs, lib, input, ... }:
+{ self, config, pkgs, ... }:
 
 {
   home.username = "vlp";
@@ -7,6 +7,10 @@
   home.packages = with pkgs; [
     neomutt
   ];
+  
+  #age.secrets.vlp_mbsync = {           
+  #  file = "${self}/secrets/vlp_mbsync.age";
+  #};
   
   programs.git = {
     enable = true;

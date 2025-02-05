@@ -7,5 +7,8 @@ in
   "prom.age".publicKeys = [ user1 user2 ];
   "mail.age".publicKeys = [ user1 user2 ];
   "mail_perso.age".publicKeys = [ user1 user2 ];
+  #vlp pass keyring
+  "vlp_mbsync.age".publicKeys = [ user2 ];
+  
 }
 
