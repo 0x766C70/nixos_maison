@@ -4,6 +4,13 @@
   ...
 }:
 {
+  age.secrets.mail = {                                                                                                                                       
+    file = ./secrets/mail.age;                                                                                                                               
+  };                                   
+  age.secrets.mail_perso = {                                                                                                                                 
+    file = ./secrets/mail_perso.age;                                                                                                                         
+  };                
+
   programs.msmtp = {
     enable = true;
     accounts.default = {
@@ -19,4 +26,4 @@
       passwordeval = "$(cat ${config.age.secrets.mail_perso.path})";
     };
   };
-};
+}
