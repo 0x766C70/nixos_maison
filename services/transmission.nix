@@ -10,9 +10,9 @@
     openRPCPort = true;
     webHome = pkgs.flood-for-transmission; 
     settings = {       
-      download-dir = "/home/mlc/media/downloads/";                                                                                                           
+      download-dir = "/mnt/downloads/"; 
       rpc-bind-address = "0.0.0.0";                                           
-      rpc-host-whitelist = "dl.vlp.fdn.fr";                                   
+      rpc-host-whitelist = "new-dl.vlp.fdn.fr";                                   
       rpc-whitelist = "*";                                                                                                                                   
     };                                                                        
   };              

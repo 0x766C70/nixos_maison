@@ -45,7 +45,7 @@
 
   # Group definitions
   users.groups.mlc = {};
-  users.groups.sftponly = {};
+  #users.groups.sftponly = {};
   # User definition
   users.users.vlp = {
     isNormalUser = true;
@@ -53,14 +53,6 @@
     extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" "scanner" ];
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
-  };
-  users.users.mlc = {
-    isNormalUser = true;
-    description = "mlc";
-    group = "mlc";
-    extraGroups = [ "transmission" "nextcloud" ];
-    packages = with pkgs; [];
-    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGxSyizcTdVqG6+P+/PCq1idtdtDGz8RbiokmjEU0qbI root@LibreELEC" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
   };
   users.users.transmission.extraGroups = [ "mlc" ];
 
@@ -137,6 +129,7 @@
     nfs-utils
     go
     epsonscan2
+    ncdu
    
     # NC dependencies
     exiftool
@@ -156,19 +149,11 @@
     ports = [ 1337 ];
     settings = {
       PasswordAuthentication = true;
-      AllowUsers = [ "vlp" "mlc" ];
+      AllowUsers = [ "vlp"];
       UseDns = true;
       X11Forwarding = false;
       PermitRootLogin = "prohibit-password";
     };
-    extraConfig = ''
-      Subsystem sftp internal-sftp
-      Match User mlc
-        ChrootDirectory %h
-        ForceCommand internal-sftp
-        X11Forwarding no
-        AllowTcpForwarding no
-    '';
   };
   services.openvpn.servers = {
     officeVPN  = { config = '' config /root/fdn.conf ''; };
@@ -182,54 +167,61 @@
       }
       reverse_proxy http://localhost:9091
     '';
+    virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''
+      basic_auth {
+        mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+      }
+      reverse_proxy http://localhost:9091
+    '';
     virtualHosts."sandbox.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080
     '';
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080
     '';
+    virtualHosts."botbotbox.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://192.168.101.11
+    '';
   };
   
   # NAS folder mounting
   systemd.tmpfiles.rules = [
-    "d /home/mlc/ 0755 root root - -"
-    "d /home/mlc/media/ 0750 mlc mlc - -"
-    "d /home/mlc/media/animations 0750 mlc mlc - -"
-    "d /home/mlc/media/docu 0750 mlc mlc - -"
-    "d /home/mlc/media/ebooks 0750 mlc mlc - -"
-    "d /home/mlc/media/games 0750 mlc mlc - -"
-    "d /home/mlc/media/movies 0750 mlc mlc - -"
-    "d /home/mlc/media/tvshows 0750 mlc mlc - -"
-    "d /home/mlc/media/downloads 0770 mlc mlc - -"
+    "d /mnt/animations 0751 vlp vlp - -"
+    "d /mnt/docu 0755 vlp vlp - -"
+    "d /mnt/ebooks 0755 vlp vlp - -"
+    "d /mnt/games 0755 vlp vlp - -"
+    "d /mnt/movies 0755 vlp vlp - -"
+    "d /mnt/tvshows 0755 vlp vlp - -"
+    "d /mnt/downloads 0775 vlp vlp - -"
     "d /root/backup 0750 root root - -"
     "d /home/vlp/partages 0750 vlp vlp - -"
   ];
 
-  fileSystems."/home/mlc/media/animations" = {
+  fileSystems."/mnt/animations" = {
     device = "192.168.100.129:/data/animations";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/media/docu" = {
+  fileSystems."/mnt/docu" = {
     device = "192.168.100.129:/data/docu";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/media/ebooks" = {
+  fileSystems."/mnt/ebooks" = {
     device = "192.168.100.129:/data/ebooks";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/media/games" = {
-    device = "192.168.100.129:/data/ebooks";
+  fileSystems."/mnt/games" = {
+    device = "192.168.100.129:/data/games";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/media/movies" = {
+  fileSystems."/mnt/movies" = {
     device = "192.168.100.129:/data/movies";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/media/tvshows" = {
+  fileSystems."/mnt/tvshows" = {
     device = "192.168.100.129:/data/tvshows";
     fsType = "nfs";
   };
-  fileSystems."/home/mlc/media/downloads" = {
+  fileSystems."/mnt/downloads" = {
     device = "/dev/mapper/encrypted_drive";
     fsType = "ext4";
   };
@@ -251,7 +243,24 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8080 5432];
+    allowedTCPPorts = [ 80 443 1337 8022 8080 5432];
+  };
+  networking.nat = {
+     enable = true;
+     internalInterfaces = [ "incusbr1" ];
+     externalInterface = "tun0";
+     forwardPorts = [
+       {
+         sourcePort = 8022;
+         proto = "tcp";
+         destination = "192.168.101.11:22";
+       }
+       {
+         sourcePort = 8023;
+         proto = "tcp";
+         destination = "192.168.101.12:22";
+       }
+     ];
   };
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
   
@@ -306,7 +315,6 @@
           "OC\\Preview\\HEIC"
        ];
     };
-    #extraOptions."memories.exiftool" = "${lib.getExe pkgs.exiftool}";
     extraApps = {
       inherit (config.services.nextcloud.package.packages.apps) news contacts calendar tasks cookbook notes memories previewgenerator;
     };
@@ -325,10 +333,28 @@
         Unit = "backup_nc.service";
       };
   };
+  systemd.timers."remote_backup_nc" = {
+    wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnCalendar="*-*-* 5:00:00";
+        #Persistent = true; 
+        Unit = "remote_backup_nc.service";
+      };
+  };
 
   systemd.services."backup_nc" = {
     script = ''
       ${pkgs.rsync}/bin/rsync -r -t -x --progress --del /var/lib/nextcloud/data/ /root/backup/nextcloud >> /var/log/timer_nc.log
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+  };
+  systemd.services."remote_backup_nc" = {
+    path = [pkgs.openssh];
+    script = ''
+      ${pkgs.rsync}/bin/rsync -r -t -x -vv --progress --del /root/backup/nextcloud/ vlp@azul.vlp.fdn.fr:/home/vlp/backup_hdd/nextcloud/ >> /var/log/timer_nc.log
     '';
     serviceConfig = {
       Type = "oneshot";

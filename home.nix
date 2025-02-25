@@ -6,6 +6,7 @@
 
   home.packages = with pkgs; [
     neomutt
+    #weechat
   ];
   
   #age.secrets.vlp_mbsync = {           
