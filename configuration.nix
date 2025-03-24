@@ -6,16 +6,27 @@
       ./hardware-configuration.nix
       ./services/msmtp.nix
       ./services/transmission.nix
+      ./services/ttyd.nix
     ];
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  networking.hostName = "maison";
-
-  # Enable networking
-  networking.networkmanager.enable = true;
-  
+  #networking.hostName = "maison";
+  #networking.nameservers = [ "80.67.169.12" ];
+  #networking.networkmanager.enable = true;
+  networking = {
+    hostName = "manwe"; 
+    networkmanager.enable = true;
+    defaultGateway = "192.168.1.1";
+    nameservers = [ "80.67.169.12" "80.67.169.40"];
+    interfaces = {
+      eno1.ipv4.addresses = [{
+        address = "192.168.1.42";
+        prefixLength = 24;
+      }];
+    };
+  };
   # Environment variables
   environment.sessionVariables = rec {
     EDITOR  = "vim";
@@ -57,7 +68,7 @@
   users.users.transmission.extraGroups = [ "mlc" ];
 
   # Enable automatic login for the user.
-  services.getty.autologinUser = "vlp";
+  #services.getty.autologinUser = "vlp";
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -130,7 +141,8 @@
     go
     epsonscan2
     ncdu
-   
+    speedtest-go
+
     # NC dependencies
     exiftool
     ffmpeg
@@ -141,6 +153,7 @@
     # apps
     transmission_4-gtk
     caddy
+    ttyd
   ];
   hardware.sane.extraBackends = [ pkgs.epkowa ];
   # Service configurations
@@ -161,26 +174,29 @@
 
   services.caddy = {
     enable = true;
-    virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
-      basic_auth {
-        mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
-      }
-      reverse_proxy http://localhost:9091
-    '';
     virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''
       basic_auth {
-        mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+        laruche $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
       }
       reverse_proxy http://localhost:9091
-    '';
-    virtualHosts."sandbox.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy http://localhost:8080
     '';
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080
     '';
     virtualHosts."botbotbox.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://192.168.101.11
+    '';
+    virtualHosts."llm.vlp.fdn.fr".extraConfig = ''
+      basic_auth / {
+		mifa JDJhJDE0JEFzaWltazhESTNiWmhFLjNyb3ZCZy5IbGI4RmF0MURWQWNocFNoc3g2OUlNU0l0b1FPdVpP
+	}	
+      reverse_proxy http://192.168.101.11:8000
+    '';
+    virtualHosts."tty.vlp.fdn.fr".extraConfig = ''
+      basic_auth / {
+		vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
+	}	
+      reverse_proxy http://localhost:7681
     '';
   };
   
@@ -198,27 +214,27 @@
   ];
 
   fileSystems."/mnt/animations" = {
-    device = "192.168.100.129:/data/animations";
+    device = "192.168.1.20:/data/animations";
     fsType = "nfs";
   };
   fileSystems."/mnt/docu" = {
-    device = "192.168.100.129:/data/docu";
+    device = "192.168.1.20:/data/docu";
     fsType = "nfs";
   };
   fileSystems."/mnt/ebooks" = {
-    device = "192.168.100.129:/data/ebooks";
+    device = "192.168.1.20:/data/ebooks";
     fsType = "nfs";
   };
   fileSystems."/mnt/games" = {
-    device = "192.168.100.129:/data/games";
+    device = "192.168.1.20:/data/games";
     fsType = "nfs";
   };
   fileSystems."/mnt/movies" = {
-    device = "192.168.100.129:/data/movies";
+    device = "192.168.1.20:/data/movies";
     fsType = "nfs";
   };
   fileSystems."/mnt/tvshows" = {
-    device = "192.168.100.129:/data/tvshows";
+    device = "192.168.1.20:/data/tvshows";
     fsType = "nfs";
   };
   fileSystems."/mnt/downloads" = {
@@ -230,11 +246,11 @@
     fsType = "ext4";
   };
   fileSystems."/home/vlp/partages" = {
-    device = "192.168.100.129:/data/partages";
+    device = "192.168.1.20:/data/partages";
     fsType = "nfs";
   };
   fileSystems."/var/lib/nextcloud/data" = {
-    device = "192.168.100.129:/data/nextcloud";
+    device = "192.168.1.20:/data/nextcloud";
     fsType = "nfs";
   };
 
@@ -243,7 +259,7 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8022 8080 5432];
+    allowedTCPPorts = [ 80 443 1337 8000 8022 8080 5432];
   };
   networking.nat = {
      enable = true;
@@ -298,7 +314,7 @@
         overwriteProtocol = "https";
         default_phone_region = "FR";
         trusted_domains = [ "sandbox.vlp.fdn.fr" "nuage.vlp.fdn.fr"];
-        trusted_proxies = [ "192.168.100.140" ];
+        trusted_proxies = [ "192.168.1.42" ];
         log_type = "file";
         memories.exiftool = "${lib.getExe pkgs.exiftool}";
         enabledPreviewProviders = [
