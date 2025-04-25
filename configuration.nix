@@ -4,6 +4,7 @@
   imports =
     [
       ./hardware-configuration.nix
+      ./services/vim.nix
       ./services/msmtp.nix
       ./services/transmission.nix
       ./services/ttyd.nix
@@ -12,9 +13,6 @@
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-  #networking.hostName = "maison";
-  #networking.nameservers = [ "80.67.169.12" ];
-  #networking.networkmanager.enable = true;
   networking = {
     hostName = "manwe"; 
     networkmanager.enable = true;
@@ -27,11 +25,7 @@
       }];
     };
   };
-  # Environment variables
-  environment.sessionVariables = rec {
-    EDITOR  = "vim";
-  };
-
+  
   hardware.sane.enable = true;
 
   # Local settings.
@@ -56,19 +50,15 @@
 
   # Group definitions
   users.groups.mlc = {};
-  #users.groups.sftponly = {};
   # User definition
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
     extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" "scanner" ];
     packages = with pkgs; [];
-    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" ];
+    openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZkKbJKyVDNdbwNiVC9mb87ACxWJrm5ZxLjysdiLVEo vlp@vlaptop" ];
   };
   users.users.transmission.extraGroups = [ "mlc" ];
-
-  # Enable automatic login for the user.
-  #services.getty.autologinUser = "vlp";
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -176,7 +166,7 @@
     enable = true;
     virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''
       basic_auth {
-        laruche $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+        mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
       }
       reverse_proxy http://localhost:9091
     '';
@@ -186,17 +176,17 @@
     virtualHosts."botbotbox.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://192.168.101.11
     '';
+    virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
+      basic_auth / {
+		vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
+	}	
+      reverse_proxy http://192.168.101.13:7681
+    '';
     virtualHosts."llm.vlp.fdn.fr".extraConfig = ''
       basic_auth / {
 		mifa JDJhJDE0JEFzaWltazhESTNiWmhFLjNyb3ZCZy5IbGI4RmF0MURWQWNocFNoc3g2OUlNU0l0b1FPdVpP
 	}	
       reverse_proxy http://192.168.101.11:8000
-    '';
-    virtualHosts."tty.vlp.fdn.fr".extraConfig = ''
-      basic_auth / {
-		vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
-	}	
-      reverse_proxy http://localhost:7681
     '';
   };
   
@@ -259,7 +249,7 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8000 8022 8080 5432];
+    allowedTCPPorts = [ 80 443 1337 8000 8022 8023 8024 8080 5432];
   };
   networking.nat = {
      enable = true;
@@ -275,6 +265,11 @@
          sourcePort = 8023;
          proto = "tcp";
          destination = "192.168.101.12:22";
+       }
+       {
+         sourcePort = 8024;
+         proto = "tcp";
+         destination = "192.168.101.13:22";
        }
      ];
   };
@@ -428,6 +423,11 @@
     ];
   };
 
+  programs.gnupg.agent = {
+    enable = true;
+    enableSSHSupport = true;
+  };
+  
   # Global
   system.stateVersion = "24.11";
 }

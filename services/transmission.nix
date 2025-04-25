@@ -7,7 +7,7 @@
 
   services.transmission = {                                                   
     enable = true;                                                            
-    openRPCPort = true;
+    #openRPCPort = true;
     webHome = pkgs.flood-for-transmission; 
     settings = {
       incomplete-dir = "/mnt/downloads/.incomplete/";       

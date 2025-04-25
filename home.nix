@@ -8,7 +8,14 @@
     neomutt
     #weechat
   ];
-  
+ 
+  home.file.gpgSshKeys = {
+  target = ".gnupg/sshcontrol";
+  text = ''
+    5A3BF9A2FFE564CE02AE8DBB7721B2B766C4D83B 600
+                                             '';
+  }; 
+
   #age.secrets.vlp_mbsync = {           
   #  file = "${self}/secrets/vlp_mbsync.age";
   #};
@@ -57,10 +64,13 @@
     enableCompletion = true;
     bashrcExtra = ''
       export PATH="$PATH:$HOME/bin:$HOME/.local/bin:$HOME/go/bin"
+      export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
+      gpgconf --launch gpg-agent
     '';
     shellAliases = {
       fr = "sudo nixos-rebuild switch --flake /home/vlp/nixos_maison";
       scanit = "scanimage --format=jpeg --resolution=300 --mode Color -p > /home/vlp/partages/scan.jpg";
+      botbotbox = "ssh 192.168.101.11";
     };
   };
 
