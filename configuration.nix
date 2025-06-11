@@ -14,10 +14,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   networking = {
-    hostName = "manwe"; 
+    hostName = "maison"; 
     networkmanager.enable = true;
     defaultGateway = "192.168.1.1";
-    nameservers = [ "80.67.169.12" "80.67.169.40"];
+    nameservers = [ "1.1.1.1"];
     interfaces = {
       eno1.ipv4.addresses = [{
         address = "192.168.1.42";
@@ -54,7 +54,7 @@
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "transmission" "scanner" ];
+    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "scanner" "transmission"];
     packages = with pkgs; [];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZkKbJKyVDNdbwNiVC9mb87ACxWJrm5ZxLjysdiLVEo vlp@vlaptop" ];
   };
@@ -176,6 +176,9 @@
     virtualHosts."botbotbox.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://192.168.101.11
     '';
+    virtualHosts."pihole.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://192.168.101.14
+    '';
     virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
       basic_auth / {
 		vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
@@ -270,6 +273,16 @@
          sourcePort = 8024;
          proto = "tcp";
          destination = "192.168.101.13:22";
+       }
+       {
+         sourcePort = 8025;
+         proto = "tcp";
+         destination = "192.168.101.14:22";
+       }
+       {
+         sourcePort = 53;
+         proto = "udp";
+         destination = "192.168.101.14:22";
        }
      ];
   };
