@@ -12,7 +12,7 @@
 
   outputs = inputs@{ nixpkgs, home-manager, agenix, ... }: {
     nixosConfigurations = {
-      manwe = nixpkgs.lib.nixosSystem {
+      maison = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           ./configuration.nix

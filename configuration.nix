@@ -86,6 +86,7 @@
 
     # networking tools
     openvpn
+    lynx
     mtr
     iperf3
     dnsutils
@@ -144,6 +145,8 @@
     transmission_4-gtk
     caddy
     ttyd
+    minidlna
+    inotify-tools
   ];
   hardware.sane.extraBackends = [ pkgs.epkowa ];
   # Service configurations
@@ -173,29 +176,38 @@
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080
     '';
-    virtualHosts."botbotbox.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy http://192.168.101.11
-    '';
-    virtualHosts."pihole.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy http://192.168.101.14
-    '';
     virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
       basic_auth / {
 		vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
 	}	
       reverse_proxy http://192.168.101.13:7681
     '';
-    virtualHosts."llm.vlp.fdn.fr".extraConfig = ''
-      basic_auth / {
-		mifa JDJhJDE0JEFzaWltazhESTNiWmhFLjNyb3ZCZy5IbGI4RmF0MURWQWNocFNoc3g2OUlNU0l0b1FPdVpP
-	}	
-      reverse_proxy http://192.168.101.11:8000
+    virtualHosts."pihole.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy 192.168.101.14:80
+    '';
+    virtualHosts."web.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy 192.168.101.11:80
+    '';
+    virtualHosts."farfadet.web.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy 192.168.101.11:80
+    '';
+    virtualHosts."cv.web.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy 192.168.101.11:80
+    '';
+    virtualHosts."ai.web.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy 192.168.101.11:80
     '';
   };
-  
+ 
+      #basic_auth {
+      #  vlp $2a$14$o8owHgahOGlgxZth0xjtLeh5SHpJBuUKIODtP5Pb9HOBtohCLsiRm
+      #}
+
+ 
   # NAS folder mounting
   systemd.tmpfiles.rules = [
     "d /mnt/animations 0751 vlp vlp - -"
+    "d /mnt/audio 0751 vlp vlp - -"
     "d /mnt/docu 0755 vlp vlp - -"
     "d /mnt/ebooks 0755 vlp vlp - -"
     "d /mnt/games 0755 vlp vlp - -"
@@ -207,43 +219,47 @@
   ];
 
   fileSystems."/mnt/animations" = {
-    device = "192.168.1.20:/data/animations";
+    device = "192.168.1.10:/data/animations";
     fsType = "nfs";
   };
   fileSystems."/mnt/docu" = {
-    device = "192.168.1.20:/data/docu";
+    device = "192.168.1.10:/data/docu";
     fsType = "nfs";
   };
   fileSystems."/mnt/ebooks" = {
-    device = "192.168.1.20:/data/ebooks";
+    device = "192.168.1.10:/data/ebooks";
     fsType = "nfs";
   };
   fileSystems."/mnt/games" = {
-    device = "192.168.1.20:/data/games";
+    device = "192.168.1.10:/data/games";
     fsType = "nfs";
   };
   fileSystems."/mnt/movies" = {
-    device = "192.168.1.20:/data/movies";
+    device = "192.168.1.10:/data/movies";
     fsType = "nfs";
   };
   fileSystems."/mnt/tvshows" = {
-    device = "192.168.1.20:/data/tvshows";
+    device = "192.168.1.10:/data/tvshows";
     fsType = "nfs";
   };
-  fileSystems."/mnt/downloads" = {
-    device = "/dev/mapper/encrypted_drive";
-    fsType = "ext4";
+  fileSystems."/mnt/audio" = {
+    device = "192.168.1.10:/data/audio";
+    fsType = "nfs";
   };
-  fileSystems."/root/backup" = {
-    device = "/dev/mapper/backup_drive";
-    fsType = "ext4";
-  };
+  #fileSystems."/mnt/downloads" = {
+  #  device = "/dev/mapper/encrypted_drive";
+  #  fsType = "ext4";
+  #};
+  #fileSystems."/root/backup" = {
+  #  device = "/dev/mapper/backup_drive";
+  #  fsType = "ext4";
+  #};
   fileSystems."/home/vlp/partages" = {
-    device = "192.168.1.20:/data/partages";
+    device = "192.168.1.10:/data/partages";
     fsType = "nfs";
   };
   fileSystems."/var/lib/nextcloud/data" = {
-    device = "192.168.1.20:/data/nextcloud";
+    device = "192.168.1.10:/data/nextcloud";
     fsType = "nfs";
   };
 
@@ -252,7 +268,8 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8000 8022 8023 8024 8080 5432];
+    allowedTCPPorts = [ 80 443 1337 8000 8022 8023 8024 8080 8200 5432];
+    allowedUDPPorts = [ 8200 ];
   };
   networking.nat = {
      enable = true;
@@ -280,9 +297,19 @@
          destination = "192.168.101.14:22";
        }
        {
+         sourcePort = 8026;
+         proto = "tcp";
+         destination = "192.168.101.15:22";
+       }
+       {
          sourcePort = 53;
          proto = "udp";
          destination = "192.168.101.14:22";
+       }
+       {
+         sourcePort = 50433;
+         proto = "udp";
+         destination = "192.168.101.15:50433";
        }
      ];
   };
@@ -378,7 +405,7 @@
   systemd.services."remote_backup_nc" = {
     path = [pkgs.openssh];
     script = ''
-      ${pkgs.rsync}/bin/rsync -r -t -x -vv --progress --del /root/backup/nextcloud/ vlp@azul.vlp.fdn.fr:/home/vlp/backup_hdd/nextcloud/ >> /var/log/timer_nc.log
+      ${pkgs.rsync}/bin/rsync -r -t -x -vv --progress --del /root/backup/nextcloud/ vlp@new-azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/ >> /var/log/timer_nc.log
     '';
     serviceConfig = {
       Type = "oneshot";
@@ -440,7 +467,27 @@
     enable = true;
     enableSSHSupport = true;
   };
-  
+ 
+  #DLNA
+  services.avahi.enable = true;
+  services.minidlna.enable = true;
+  services.minidlna.openFirewall = true;
+  services.minidlna.settings = {
+    friendly_name = "NAS";
+    media_dir = [
+      "V,/mnt/animations/"
+      "V,/mnt/audio/"
+      "V,/mnt/docu/"
+    ];
+    log_level = "warn";
+    inotify = "yes";
+    #announceInterval = 05;
+  };
+
+  users.users.minidlna = {
+  extraGroups = [ "users" ]; # so minidlna can access the files.
+  };
+ 
   # Global
   system.stateVersion = "24.11";
 }

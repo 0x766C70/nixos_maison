@@ -69,8 +69,8 @@
     '';
     shellAliases = {
       fr = "sudo nixos-rebuild switch --flake /home/vlp/nixos_maison";
-      scanit = "scanimage --format=jpeg --resolution=300 --mode Color -p > /home/vlp/partages/scan.jpg";
-      botbotbox = "ssh 192.168.101.11";
+      scanit = "sudo scanimage --format=png --resolution=300 --mode Color -p > /home/vlp/partages/scan.png";
+      laptop = "ssh 192.168.101.13";
     };
   };
 
