@@ -367,7 +367,7 @@
        ];
     };
     extraApps = {
-      inherit (config.services.nextcloud.package.packages.apps) news bookmarks contacts calendar tasks cookbook notes memories previewgenerator;
+      inherit (config.services.nextcloud.package.packages.apps) news bookmarks contacts calendar tasks cookbook notes memories previewgenerator deck;
     };
     extraAppsEnable = true;
     phpOptions."opcache.interned_strings_buffer" = "13";
