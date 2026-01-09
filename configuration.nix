@@ -7,6 +7,7 @@
       ./services/vim.nix
       ./services/msmtp.nix
       ./services/transmission.nix
+      ./services/headscale.nix
       ./services/ttyd.nix
     ];
 
