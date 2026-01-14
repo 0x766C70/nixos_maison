@@ -6,7 +6,8 @@
 {
 
   services.transmission = {                                                   
-    enable = true;                                                            
+    enable = true;
+    package = pkgs.transmission_4;                                                            
     #openRPCPort = true;
     webHome = pkgs.flood-for-transmission; 
     settings = {
