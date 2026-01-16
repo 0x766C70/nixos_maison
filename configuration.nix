@@ -4,8 +4,10 @@
   imports =
     [
       ./hardware-configuration.nix
+      ./services/firewall.nix
       ./services/vim.nix
       ./services/msmtp.nix
+      ./services/dlna.nix
       ./services/transmission.nix
       ./services/headscale.nix
       ./services/ttyd.nix
@@ -244,14 +246,6 @@
     device = "192.168.1.10:/data/audio";
     fsType = "nfs";
   };
-  #fileSystems."/mnt/downloads" = {
-  #  device = "/dev/mapper/encrypted_drive";
-  #  fsType = "ext4";
-  #};
-  #fileSystems."/root/backup" = {
-  #  device = "/dev/mapper/backup_drive";
-  #  fsType = "ext4";
-  #};
   fileSystems."/home/vlp/partages" = {
     device = "192.168.1.10:/data/partages";
     fsType = "nfs";
@@ -261,57 +255,6 @@
     fsType = "nfs";
   };
 
-  
-  # Firewall configuration
-  #networking.nftables.enable = true;
-  #networking.firewall = {
-  #  enable = true;
-  #  allowedTCPPorts = [ 80 443 1337 8000 8022 8023 8024 8080 8200 5432];
-  #  allowedUDPPorts = [ 8200 ];
-  #};
-  #networking.nat = {
-  #   enable = true;
-  #   internalInterfaces = [ "incusbr1" ];
-  #   externalInterface = "tun0";
-  #   forwardPorts = [
-  #     {
-  #       sourcePort = 8022;
-  #       proto = "tcp";
-  #       destination = "192.168.101.11:22";
-  #     }
-  #     {
-  #       sourcePort = 8023;
-  #       proto = "tcp";
-  #       destination = "192.168.101.12:22";
-  #     }
-  #     {
-  #       sourcePort = 8024;
-  #       proto = "tcp";
-  #       destination = "192.168.101.13:22";
-  #     }
-  #     {
-  #       sourcePort = 8025;
-  #       proto = "tcp";
-  #       destination = "192.168.101.14:22";
-  #     }
-  #     {
-  #       sourcePort = 8026;
-  #       proto = "tcp";
-  #       destination = "192.168.101.15:22";
-  #     }
-  #     {
-  #       sourcePort = 53;
-  #       proto = "udp";
-  #       destination = "192.168.101.14:22";
-  #     }
-  #     {
-  #       sourcePort = 50433;
-  #       proto = "udp";
-  #       destination = "192.168.101.15:50433";
-  #     }
-  #   ];
-  #};
-  #networking.firewall.trustedInterfaces = [ "incusbr0" ];
   
   # Incus configuration
   virtualisation.incus.enable = true;
@@ -329,6 +272,7 @@
     group = "prometheus";
   };
 
+  # Cron des backups
   systemd.timers."backup_nc" = {
     wantedBy = [ "timers.target" ];
       timerConfig = {
@@ -384,62 +328,29 @@
     };
   };
 
-  # Prometheus
-
- # services.prometheus.exporters.node = {
- #   enable = true;
- #   port = 9000;
- #   enabledCollectors = [ "systemd" ];
- #   extraFlags = [ "--collector.ethtool" "--collector.softirqs" "--collector.tcpstat" "--collector.wifi" ];
- # };
-
- # services.prometheus = {
- #   enable = true;
- #   globalConfig.scrape_interval = "10s"; # "1m"
- #   checkConfig = "syntax-only";
- #   scrapeConfigs = [
- #   {
- #     job_name = "nuc_node";
- #     static_configs = [{
- #       targets = [ "localhost:${toString config.services.prometheus.exporters.node.port}" ];
- #     }];
- #   }
- #   ];
- #   remoteWrite = [
- #   {
- #     url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
- #     basic_auth = {
- #       username =  "737153";
- #       password_file = config.age.secrets.prom.path;
- #     };
- #   }
- #   ];
- # };
-
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
   };
  
   #DLNA
-  services.avahi.enable = true;
-  services.minidlna.enable = true;
-  services.minidlna.openFirewall = true;
-  services.minidlna.settings = {
-    friendly_name = "NAS";
-    media_dir = [
-      "V,/mnt/animations/"
-      "V,/mnt/audio/"
-      "V,/mnt/docu/"
-    ];
-    log_level = "warn";
-    inotify = "yes";
-    #announceInterval = 05;
-  };
+  #services.avahi.enable = true;
+  #services.minidlna.enable = true;
+  #services.minidlna.openFirewall = true;
+  #services.minidlna.settings = {
+  #  friendly_name = "NAS";
+  #  media_dir = [
+  #    "V,/mnt/animations/"
+  #    "V,/mnt/audio/"
+  #    "V,/mnt/docu/"
+  #  ];
+  #  log_level = "warn";
+  #  inotify = "yes";
+  #};
 
-  users.users.minidlna = {
-  extraGroups = [ "users" ]; # so minidlna can access the files.
-  };
+  #users.users.minidlna = {
+  #extraGroups = [ "users" ]; # so minidlna can access the files.
+  #};
  
   # Global
   system.stateVersion = "24.11";
