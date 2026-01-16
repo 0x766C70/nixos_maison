@@ -166,43 +166,46 @@
       PermitRootLogin = "prohibit-password";
     };
   };
+
+  # Openvpn static conf
   services.openvpn.servers = {
     officeVPN  = { config = '' config /root/fdn.conf ''; };
   };
 
-  services.caddy = {
-    enable = true;
-    virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''
-      basic_auth {
-        mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
-      }
-      reverse_proxy http://localhost:9091
-    '';
-    virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy http://localhost:8080
-    '';
-    virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
-      basic_auth / {
-		vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
-	}	
-      reverse_proxy http://192.168.101.13:7681
-    '';
-    virtualHosts."pihole.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy 192.168.101.14:80
-    '';
-    virtualHosts."web.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy 192.168.101.11:80
-    '';
-    virtualHosts."farfadet.web.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy 192.168.101.11:80
-    '';
-    virtualHosts."cv.web.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy 192.168.101.11:80
-    '';
-    virtualHosts."ai.web.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy 192.168.101.11:80
-    '';
-  };
+  # Caddy
+  #services.caddy = {
+  #  enable = true;
+  #  virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''
+  #    basic_auth {
+  #      mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+  #    }
+  #    reverse_proxy http://localhost:9091
+  #  '';
+  #  virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
+  #    reverse_proxy http://localhost:8080
+  #  '';
+  #  virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
+  #    basic_auth / {
+  #      	vlp $2a$14$PqyFv42lPq5jJa7gE3jYru2lJ6G5Ne5n4euH68Knnjpcd6Hvs2qE. 
+  #      }	
+  #    reverse_proxy http://192.168.101.13:7681
+  #  '';
+  #  virtualHosts."pihole.vlp.fdn.fr".extraConfig = ''
+  #    reverse_proxy 192.168.101.14:80
+  #  '';
+  #  virtualHosts."web.vlp.fdn.fr".extraConfig = ''
+  #    reverse_proxy 192.168.101.11:80
+  #  '';
+  #  virtualHosts."farfadet.web.vlp.fdn.fr".extraConfig = ''
+  #    reverse_proxy 192.168.101.11:80
+  #  '';
+  #  virtualHosts."cv.web.vlp.fdn.fr".extraConfig = ''
+  #    reverse_proxy 192.168.101.11:80
+  #  '';
+  #  virtualHosts."ai.web.vlp.fdn.fr".extraConfig = ''
+  #    reverse_proxy 192.168.101.11:80
+  #  '';
+  #};
  
   # NAS folder mounting
   systemd.tmpfiles.rules = [
@@ -328,29 +331,11 @@
     };
   };
 
+  # gpg
   programs.gnupg.agent = {
     enable = true;
     enableSSHSupport = true;
   };
- 
-  #DLNA
-  #services.avahi.enable = true;
-  #services.minidlna.enable = true;
-  #services.minidlna.openFirewall = true;
-  #services.minidlna.settings = {
-  #  friendly_name = "NAS";
-  #  media_dir = [
-  #    "V,/mnt/animations/"
-  #    "V,/mnt/audio/"
-  #    "V,/mnt/docu/"
-  #  ];
-  #  log_level = "warn";
-  #  inotify = "yes";
-  #};
-
-  #users.users.minidlna = {
-  #extraGroups = [ "users" ]; # so minidlna can access the files.
-  #};
  
   # Global
   system.stateVersion = "24.11";
