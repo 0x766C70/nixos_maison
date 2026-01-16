@@ -10,6 +10,7 @@
       ./services/headscale.nix
       ./services/ttyd.nix
       ./services/nextcloud.nix
+      ./services/prom.nix
     ];
 
   # Bootloader.
@@ -144,13 +145,13 @@
     perl
  
     # apps
-    transmission_4-gtk
     caddy
     ttyd
     minidlna
     inotify-tools
   ];
   hardware.sane.extraBackends = [ pkgs.epkowa ];
+
   # Service configurations
   services.openssh = {
     enable = true;
@@ -200,11 +201,6 @@
       reverse_proxy 192.168.101.11:80
     '';
   };
- 
-      #basic_auth {
-      #  vlp $2a$14$o8owHgahOGlgxZth0xjtLeh5SHpJBuUKIODtP5Pb9HOBtohCLsiRm
-      #}
-
  
   # NAS folder mounting
   systemd.tmpfiles.rules = [
@@ -333,51 +329,6 @@
     group = "prometheus";
   };
 
-  # Nextcloud conf
-  #services.nextcloud = {
-  #  enable = true;
-  #  package = pkgs.nextcloud30;
-  #  hostName = "localhost";
-  #  database.createLocally = true;
-  #  configureRedis = true;
-  #  maxUploadSize = "1G";
-  #  https = true;
-  #  autoUpdateApps.enable = true;
-  #  config = {
-  #      adminpassFile = config.age.secrets.nextcloud.path;
-  #      dbtype = "pgsql";
-  #  };
-  #  settings = {
-  #      overwriteProtocol = "https";
-  #      default_phone_region = "FR";
-  #      trusted_domains = [ "sandbox.vlp.fdn.fr" "nuage.vlp.fdn.fr"];
-  #      trusted_proxies = [ "192.168.1.42" ];
-  #      log_type = "file";
-  #      memories.exiftool = "${lib.getExe pkgs.exiftool}";
-  #      enabledPreviewProviders = [
-  #        "OC\\Preview\\BMP"
-  #        "OC\\Preview\\GIF"
-  #        "OC\\Preview\\JPEG"
-  #        "OC\\Preview\\Krita"
-  #        "OC\\Preview\\MarkDown"
-  #        "OC\\Preview\\MP3"
-  #        "OC\\Preview\\OpenDocument"
-  #        "OC\\Preview\\PNG"
-  #        "OC\\Preview\\TXT"
-  #        "OC\\Preview\\XBitmap"
-  #        "OC\\Preview\\HEIC"
-  #     ];
-  #  };
-  #  extraApps = {
-  #    inherit (config.services.nextcloud.package.packages.apps) news bookmarks contacts calendar tasks cookbook notes memories previewgenerator deck;
-  #  };
-  #  extraAppsEnable = true;
-  #  phpOptions."opcache.interned_strings_buffer" = "13";
-  #  # extra command
-  #  #nextcloud-occ maintenance:repair --include-expensive
-  #};
-  #services.nginx.virtualHosts."localhost".listen = [ { addr = "127.0.0.1"; port = 8080; } ];
-
   systemd.timers."backup_nc" = {
     wantedBy = [ "timers.target" ];
       timerConfig = {
@@ -435,35 +386,35 @@
 
   # Prometheus
 
-  services.prometheus.exporters.node = {
-    enable = true;
-    port = 9000;
-    enabledCollectors = [ "systemd" ];
-    extraFlags = [ "--collector.ethtool" "--collector.softirqs" "--collector.tcpstat" "--collector.wifi" ];
-  };
+ # services.prometheus.exporters.node = {
+ #   enable = true;
+ #   port = 9000;
+ #   enabledCollectors = [ "systemd" ];
+ #   extraFlags = [ "--collector.ethtool" "--collector.softirqs" "--collector.tcpstat" "--collector.wifi" ];
+ # };
 
-  services.prometheus = {
-    enable = true;
-    globalConfig.scrape_interval = "10s"; # "1m"
-    checkConfig = "syntax-only";
-    scrapeConfigs = [
-    {
-      job_name = "nuc_node";
-      static_configs = [{
-        targets = [ "localhost:${toString config.services.prometheus.exporters.node.port}" ];
-      }];
-    }
-    ];
-    remoteWrite = [
-    {
-      url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
-      basic_auth = {
-        username =  "737153";
-        password_file = config.age.secrets.prom.path;
-      };
-    }
-    ];
-  };
+ # services.prometheus = {
+ #   enable = true;
+ #   globalConfig.scrape_interval = "10s"; # "1m"
+ #   checkConfig = "syntax-only";
+ #   scrapeConfigs = [
+ #   {
+ #     job_name = "nuc_node";
+ #     static_configs = [{
+ #       targets = [ "localhost:${toString config.services.prometheus.exporters.node.port}" ];
+ #     }];
+ #   }
+ #   ];
+ #   remoteWrite = [
+ #   {
+ #     url = "https://prometheus-prod-01-eu-west-0.grafana.net/api/prom/push";
+ #     basic_auth = {
+ #       username =  "737153";
+ #       password_file = config.age.secrets.prom.path;
+ #     };
+ #   }
+ #   ];
+ # };
 
   programs.gnupg.agent = {
     enable = true;
