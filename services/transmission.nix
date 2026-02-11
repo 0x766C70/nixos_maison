@@ -4,11 +4,9 @@
   ...
 }:
 {
-
   services.transmission = {                                                   
     enable = true;
     package = pkgs.transmission_4;                                                            
-    #openRPCPort = true;
     webHome = pkgs.flood-for-transmission; 
     settings = {
       incomplete-dir = "/mnt/downloads/.incomplete/";       
@@ -18,5 +16,4 @@
       rpc-whitelist = "*";                                                                                                                                   
     };                                                                        
   };              
-
 }
