@@ -241,11 +241,6 @@
     owner = "prometheus";
     group = "prometheus";
   };
-  age.secrets.dl = {
-    file = ./secrets/dl_caddy.age;
-    owner = "caddy";
-    group = "caddy";
-  };
   age.secrets.caddy_mlc = {
     file = ./secrets/caddy_mlc.age;
     owner = "caddy";
