@@ -6,12 +6,7 @@ in
   "nextcloud.age".publicKeys = [ user1 user2 ];
   "prom.age".publicKeys = [ user1 user2 ];
   "mail.age".publicKeys = [ user1 user2 ];
-  "mail_perso.age".publicKeys = [ user1 user2 ];
-  "dl_caddy.age".publicKeys = [ user1 ];
   "caddy_mlc.age".publicKeys = [ user1 ];
   "caddy_vlp.age".publicKeys = [ user1 ];
-  #vlp pass keyring
-  "vlp_mbsync.age".publicKeys = [ user2 ];
-  
 }
 
