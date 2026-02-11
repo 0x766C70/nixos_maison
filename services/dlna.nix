@@ -12,7 +12,9 @@
     media_dir = [
       "V,/mnt/animations/"
       "V,/mnt/audio/"
+      "V,/mnt/movies/"
       "V,/mnt/docu/"
+      "V,/mnt/downloads/"
     ];
     log_level = "warn";
     inotify = "yes";
