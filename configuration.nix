@@ -77,6 +77,7 @@
     
     # basic tools
     vim
+    neovim
     git
     nnn 
     zip
@@ -239,6 +240,16 @@
     file = ./secrets/prom.age;
     owner = "prometheus";
     group = "prometheus";
+  };
+  age.secrets.dl = {
+    file = ./secrets/dl_caddy.age;
+    owner = "caddy";
+    group = "caddy";
+  };
+  age.secrets.mail = {
+    file = ./secrets/mail.age;
+    owner = "msmtp";
+    group = "msmtp";
   };
 
   # Cron des backups

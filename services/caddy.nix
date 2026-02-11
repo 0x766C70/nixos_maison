@@ -3,18 +3,15 @@
   pkgs,
   ...
 }:
-{
-
-  age.secrets.dl = {
-    file = ../secrets/dl_caddy.age;
-  };
-
-services.caddy = {                                                                                                                                                                                                                                                          
+let 
+  dlCaddyPassword = config.age.secrets.dl.text;
+in {
+  services.caddy = {                                                                                                                                                                                                                                                          
     enable = true;                                                                                                                                                                                                                                                            
-    virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''                                                                                                                                                                                                                         
+    virtualHosts."dl.vlp.fdn.fr".extraConfig = ''                                                                                                                                                                                                                         
       basic_auth {                                                                                                                                                                                                                                                            
-        mlc config.age.secrets.dl_caddy.path                                                                                                                                                                                                      
-      }                                                                                                                                                                                                                                                                       
+      		mlc $2a$14$qDVVV0r7JB8QyhswO2/x1utmcYn7XJmMlCE/66hEWdr78.jjmE3Sq
+	}                                                                                                                                                                                                                                                                       
       reverse_proxy http://localhost:9091                                                                                                                                                                                                                                     
     '';                                                                                                                                                                                                                                                                       
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''                                                                                                                                                                                                                          
