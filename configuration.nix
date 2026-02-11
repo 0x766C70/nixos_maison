@@ -14,6 +14,7 @@
       ./services/ttyd.nix
       ./services/nextcloud.nix
       ./services/prom.nix
+      ./services/openvpn.nix
     ];
 
   # Bootloader.
@@ -169,11 +170,6 @@
     };
   };
 
-  # Openvpn static conf
-  services.openvpn.servers = {
-    officeVPN  = { config = '' config /root/fdn.conf ''; };
-  };
-
   # NAS folder mounting
   systemd.tmpfiles.rules = [
     "d /mnt/animations 0751 vlp vlp - -"
@@ -255,6 +251,12 @@
     file = ./secrets/mail.age;
     owner = "msmtp";
     group = "msmtp";
+  };
+  age.secrets.openvpn = {
+    file = ./secrets/openvpn.age;
+    owner = "root";
+    group = "root";
+    mode = "0400";
   };
 
   # Cron des backups
