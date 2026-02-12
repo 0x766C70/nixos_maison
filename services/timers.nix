@@ -62,7 +62,7 @@
       # Run rsync backup to remote server
       ${pkgs.rsync}/bin/rsync -a --delete \
         /root/backup/nextcloud/ \
-        vlp@new-azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/
+        vlp@azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/
       
       echo "Remote Nextcloud backup completed successfully at $(date)"
     '';
