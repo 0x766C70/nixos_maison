@@ -111,7 +111,7 @@ sudo journalctl -u luks-sdb1-unlock.service
 
 The service follows these principles:
 
-- **Error handling**: Uses `set -e` for script safety, but explicitly handles expected failures
+- **Error handling**: Uses explicit error handling with `|| { ... }` blocks to catch failures gracefully
 - **Non-blocking**: Always exits with 0 to prevent boot failures
 - **Logging**: All actions logged to systemd journal
 - **Idempotent**: Can be run multiple times safely
