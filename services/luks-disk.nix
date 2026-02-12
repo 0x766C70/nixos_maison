@@ -22,6 +22,8 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      User = "root";
+      Group = "root";
     };
     
     script = ''
@@ -41,7 +43,7 @@
       echo "Unlocking LUKS device on /dev/sdb1"
       ${pkgs.cryptsetup}/bin/cryptsetup luksOpen /dev/sdb1 luks-sdb1 \
         --key-file ${config.age.secrets.luks_sdb1.path} || {
-        echo "Failed to unlock LUKS device with passphrase ${config.age.secrets.luks_sdb1.path},  boot will continue without it"
+        echo "Failed to unlock LUKS device,  boot will continue without it"
         exit 0
       }
       
