@@ -16,6 +16,7 @@
       ./services/prom.nix
       ./services/timers.nix
       ./services/nfs-mounts.nix
+      ./services/luks-disk.nix
     ];
 
   # Bootloader.
@@ -203,6 +204,12 @@
   };
   age.secrets.mail = {
     file = ./secrets/mail.age;
+  };
+  age.secrets.luks_sdb1 = {
+    file = ./secrets/luks_sdb1.age;
+    owner = "root";
+    group = "root";
+    mode = "0400";
   };
 
   # gpg
