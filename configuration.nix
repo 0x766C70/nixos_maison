@@ -20,10 +20,10 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   networking = {
-    hostName = "maison"; 
+    hostName = "maison";
     networkmanager.enable = true;
     defaultGateway = "192.168.1.1";
-    nameservers = [ "1.1.1.1"];
+    nameservers = [ "1.1.1.1" ];
     interfaces = {
       eno1.ipv4.addresses = [{
         address = "192.168.1.42";
@@ -31,7 +31,7 @@
       }];
     };
   };
-  
+
   hardware.sane.enable = true;
 
   # Local settings.
@@ -55,13 +55,13 @@
   console.keyMap = "us-acentos";
 
   # Group definitions
-  users.groups.mlc = {};
+  users.groups.mlc = { };
   # User definition
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "scanner" "transmission"];
-    packages = with pkgs; [];
+    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "scanner" "transmission" ];
+    packages = with pkgs; [ ];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZkKbJKyVDNdbwNiVC9mb87ACxWJrm5ZxLjysdiLVEo vlp@vlaptop" ];
   };
   users.users.transmission.extraGroups = [ "mlc" ];
@@ -74,17 +74,17 @@
 
   # Package definition
   environment.systemPackages = with pkgs; [
-    
+
     # basic tools
     vim
     neovim
     git
-    nnn 
+    nnn
     zip
     xz
     unzip
     p7zip
-    ripgrep 
+    ripgrep
     jq
     yq-go
     eza
@@ -97,7 +97,7 @@
     mtr
     iperf3
     dnsutils
-    ldns 
+    ldns
     aria2
     socat
     nmap
@@ -133,7 +133,7 @@
     sysstat
     lm_sensors
     ethtool
-    pciutils 
+    pciutils
     usbutils
     nfs-utils
     go
@@ -147,7 +147,7 @@
     imagemagick
     nodejs
     perl
- 
+
     # apps
     caddy
     ttyd
@@ -162,7 +162,7 @@
     ports = [ 1337 ];
     settings = {
       PasswordAuthentication = true;
-      AllowUsers = [ "vlp"];
+      AllowUsers = [ "vlp" ];
       UseDns = true;
       X11Forwarding = false;
       PermitRootLogin = "prohibit-password";
@@ -171,7 +171,7 @@
 
   # Openvpn static conf
   services.openvpn.servers = {
-    officeVPN  = { config = '' config /root/fdn.conf ''; };
+    officeVPN = { config = '' config /root/fdn.conf ''; };
   };
 
   # NAS folder mounting
@@ -191,44 +191,53 @@
   fileSystems."/mnt/animations" = {
     device = "192.168.1.10:/data/animations";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/mnt/docu" = {
     device = "192.168.1.10:/data/docu";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/mnt/ebooks" = {
     device = "192.168.1.10:/data/ebooks";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/mnt/games" = {
     device = "192.168.1.10:/data/games";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/mnt/movies" = {
     device = "192.168.1.10:/data/movies";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/mnt/tvshows" = {
     device = "192.168.1.10:/data/tvshows";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/mnt/audio" = {
     device = "192.168.1.10:/data/audio";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/home/vlp/partages" = {
     device = "192.168.1.10:/data/partages";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
   fileSystems."/var/lib/nextcloud/data" = {
     device = "192.168.1.10:/data/nextcloud";
     fsType = "nfs";
+    options = [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=600" ];
   };
 
-  
+
   # Incus configuration
   virtualisation.incus.enable = true;
-  
+
   # agix configuration
   age.identityPaths = [ "/root/.ssh/id_ed25519" ];
   age.secrets.nextcloud = {
@@ -253,26 +262,24 @@
   };
   age.secrets.mail = {
     file = ./secrets/mail.age;
-    owner = "msmtp";
-    group = "msmtp";
   };
 
   # Cron des backups
   systemd.timers."backup_nc" = {
     wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar="*-*-* 4:00:00";
-        #Persistent = true; 
-        Unit = "backup_nc.service";
-      };
+    timerConfig = {
+      OnCalendar = "*-*-* 4:00:00";
+      #Persistent = true; 
+      Unit = "backup_nc.service";
+    };
   };
   systemd.timers."remote_backup_nc" = {
     wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar="*-*-* 5:00:00";
-        #Persistent = true; 
-        Unit = "remote_backup_nc.service";
-      };
+    timerConfig = {
+      OnCalendar = "*-*-* 5:00:00";
+      #Persistent = true; 
+      Unit = "remote_backup_nc.service";
+    };
   };
 
   systemd.services."backup_nc" = {
@@ -285,7 +292,7 @@
     };
   };
   systemd.services."remote_backup_nc" = {
-    path = [pkgs.openssh];
+    path = [ pkgs.openssh ];
     script = ''
       ${pkgs.rsync}/bin/rsync -r -t -x -vv --progress --del /root/backup/nextcloud/ vlp@new-azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/ >> /var/log/timer_nc.log
     '';
@@ -297,10 +304,10 @@
 
   systemd.timers."my_ip" = {
     wantedBy = [ "timers.target" ];
-      timerConfig = {
-        OnCalendar="*-*-* 2:00:00";
-        Unit = "my_ip.service";
-      };
+    timerConfig = {
+      OnCalendar = "*-*-* 2:00:00";
+      Unit = "my_ip.service";
+    };
   };
 
   systemd.services."my_ip" = {
@@ -318,7 +325,7 @@
     enable = true;
     enableSSHSupport = true;
   };
- 
+
   # Global
   system.stateVersion = "24.11";
 }

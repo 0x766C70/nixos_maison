@@ -5,28 +5,31 @@
 
 {
   imports =
-    [ (modulesPath + "/installer/scan/not-detected.nix")
+    [
+      (modulesPath + "/installer/scan/not-detected.nix")
     ];
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
-  
+
   boot.kernel.sysctl = {
-  "net.ipv4.conf.all.forwarding" = true;
-  "net.ipv6.conf.all.forwarding" = true;
+    "net.ipv4.conf.all.forwarding" = true;
+    "net.ipv6.conf.all.forwarding" = true;
   };
 
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/16ca5598-4fe9-4ef7-85ce-ba588fe377c1";
+    {
+      device = "/dev/disk/by-uuid/16ca5598-4fe9-4ef7-85ce-ba588fe377c1";
       fsType = "ext4";
     };
 
   boot.initrd.luks.devices."luks-85550134-2216-4686-98fa-b6c35f23acca".device = "/dev/disk/by-uuid/85550134-2216-4686-98fa-b6c35f23acca";
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/EC66-949F";
+    {
+      device = "/dev/disk/by-uuid/EC66-949F";
       fsType = "vfat";
       options = [ "fmask=0077" "dmask=0077" ];
     };

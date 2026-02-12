@@ -1,7 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
+{ config
+, pkgs
+, ...
 }:
 {
   services.caddy = {
@@ -20,9 +19,6 @@
         vlp {file.${config.age.secrets.caddy_vlp.path}}
       }
       reverse_proxy http://192.168.101.13:7681
-    '';
-    virtualHosts."pihole.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy 192.168.101.14:80
     '';
     virtualHosts."web.vlp.fdn.fr".extraConfig = ''
       reverse_proxy 192.168.101.11:80

@@ -1,7 +1,6 @@
-{
-  config,
-  pkgs,
-  ...
+{ config
+, pkgs
+, ...
 }:
 {
   services.avahi.enable = true;
@@ -19,8 +18,7 @@
     log_level = "warn";
     inotify = "yes";
   };
-
   users.users.minidlna = {
-  extraGroups = [ "users" ]; # so minidlna can access the files.
+    extraGroups = [ "users" ]; # so minidlna can access the files.
   };
 }

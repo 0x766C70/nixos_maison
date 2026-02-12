@@ -1,11 +1,10 @@
-{
-  config,
-  pkgs,
-  ...
+{ config
+, pkgs
+, ...
 }:
 {
-  services.ttyd = {                                                   
+  services.ttyd = {
     enable = true;
     writeable = true;
-  };              
+  };
 }

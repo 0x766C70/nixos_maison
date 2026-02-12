@@ -8,18 +8,18 @@
     neomutt
     #weechat
   ];
- 
+
   home.file.gpgSshKeys = {
-  target = ".gnupg/sshcontrol";
-  text = ''
-    5A3BF9A2FFE564CE02AE8DBB7721B2B766C4D83B 600
-                                             '';
-  }; 
+    target = ".gnupg/sshcontrol";
+    text = ''
+      5A3BF9A2FFE564CE02AE8DBB7721B2B766C4D83B 600
+    '';
+  };
 
   #age.secrets.vlp_mbsync = {           
   #  file = "${self}/secrets/vlp_mbsync.age";
   #};
-  
+
   programs.git = {
     enable = true;
     userName = "vlp";
@@ -30,8 +30,8 @@
     };
     extraConfig = {
       core = {
-      editor ="vim";
-     	};
+        editor = "vim";
+      };
     };
   };
 
