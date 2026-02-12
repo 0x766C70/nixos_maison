@@ -11,8 +11,13 @@
   systemd.services.luks-sdb1-unlock = {
     description = "Unlock LUKS encrypted disk on sdb1";
     wantedBy = [ "multi-user.target" ];
+    # Wait for local filesystem and ensure agenix has decrypted secrets
     after = [ "local-fs.target" ];
     before = [ "mnt-encrypted.mount" ];
+    # Require that the secret file exists before running
+    unitConfig = {
+      ConditionPathExists = config.age.secrets.luks_sdb1.path;
+    };
     
     serviceConfig = {
       Type = "oneshot";
@@ -23,12 +28,6 @@
       # Check if device exists
       if [ ! -b /dev/sdb1 ]; then
         echo "Device /dev/sdb1 not found, skipping LUKS unlock"
-        exit 0
-      fi
-      
-      # Check if secret file exists (agenix should have decrypted it)
-      if [ ! -f ${config.age.secrets.luks_sdb1.path} ]; then
-        echo "LUKS password secret not available yet, skipping unlock"
         exit 0
       fi
       
