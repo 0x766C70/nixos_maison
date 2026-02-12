@@ -14,6 +14,7 @@
       ./services/ttyd.nix
       ./services/nextcloud.nix
       ./services/prom.nix
+      ./services/timers.nix
       ./services/nfs-mounts.nix
     ];
 
@@ -202,62 +203,6 @@
   };
   age.secrets.mail = {
     file = ./secrets/mail.age;
-  };
-
-  # Cron des backups
-  systemd.timers."backup_nc" = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 4:00:00";
-      #Persistent = true; 
-      Unit = "backup_nc.service";
-    };
-  };
-  systemd.timers."remote_backup_nc" = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 5:00:00";
-      #Persistent = true; 
-      Unit = "remote_backup_nc.service";
-    };
-  };
-
-  systemd.services."backup_nc" = {
-    script = ''
-      ${pkgs.rsync}/bin/rsync -r -t -x --progress --del /var/lib/nextcloud/data/ /root/backup/nextcloud >> /var/log/timer_nc.log
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-    };
-  };
-  systemd.services."remote_backup_nc" = {
-    path = [ pkgs.openssh ];
-    script = ''
-      ${pkgs.rsync}/bin/rsync -r -t -x -vv --progress --del /root/backup/nextcloud/ vlp@new-azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/ >> /var/log/timer_nc.log
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-    };
-  };
-
-  systemd.timers."my_ip" = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*-*-* 2:00:00";
-      Unit = "my_ip.service";
-    };
-  };
-
-  systemd.services."my_ip" = {
-    script = ''
-      ${pkgs.curl}/bin/curl https://api.ipify.org\?format\=json 2> /dev/null | ${pkgs.jq}/bin/jq -r '"Subject: ma:son ip\nmaison ip:\(.ip)"' | ${pkgs.msmtp}/bin/msmtp thomas@criscione.fr
-    '';
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-    };
   };
 
   # gpg
