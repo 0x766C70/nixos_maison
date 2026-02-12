@@ -66,7 +66,8 @@ agenix -e luks_sdb1.age
 # Create a temporary file with your password
 echo -n "your-luks-password" > /tmp/luks_password.txt
 
-# Encrypt it with your configured public keys (see secrets/secrets.nix for actual keys)
+# Encrypt it with your configured public keys
+# NOTE: Replace the placeholders below with the actual public keys from secrets/secrets.nix (user1 and user2)
 age -r "ssh-ed25519 AAAA...XXXX root@maison" \
     -r "ssh-ed25519 AAAA...YYYY vlp@maison" \
     -o secrets/luks_sdb1.age < /tmp/luks_password.txt

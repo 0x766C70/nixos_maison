@@ -55,6 +55,6 @@
     fsType = "ext4";
     # Use nofail to allow boot to continue if disk is not available
     # This is critical for preventing boot hangs
-    options = [ "nofail" "x-systemd.device-timeout=10" ];
+    options = [ "nofail" ];
   };
 }
