@@ -20,11 +20,15 @@
     };
     
     script = ''
-      set -e
-      
       # Check if device exists
       if [ ! -b /dev/sdb1 ]; then
         echo "Device /dev/sdb1 not found, skipping LUKS unlock"
+        exit 0
+      fi
+      
+      # Check if secret file exists (agenix should have decrypted it)
+      if [ ! -f ${config.age.secrets.luks_sdb1.path} ]; then
+        echo "LUKS password secret not available yet, skipping unlock"
         exit 0
       fi
       
