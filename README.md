@@ -57,8 +57,7 @@ sudo nixos-rebuild switch --flake .#maison
 The server runs on static IP `192.168.1.42` with the following services:
 
 - Nextcloud: `https://nuage.vlp.fdn.fr`
-- Downloads: `https://dl.vlp.fdn.fr`
-- Transmission: `http://192.168.1.42:9091`
+- Transmission: `https://dl.vlp.fdn.fr`
 - Terminal: `https://ttyd.vlp.fdn.fr`
 
 ## 🔐 Secrets Management
@@ -67,7 +66,7 @@ Secrets are managed using [agenix](https://github.com/ryantm/agenix):
 
 ```bash
 # Edit secrets (requires age key)
-agenix -e secrets/nextcloud.age
+agenix -e secrets/mySecret.age
 ```
 
 Secrets are defined in `secrets/secrets.nix` and configured in `configuration.nix`.
@@ -78,11 +77,11 @@ Secrets are defined in `secrets/secrets.nix` and configured in `configuration.ni
 
 Automated backups run via systemd timers:
 - **Nextcloud backup**: Daily at 4:00 AM → `/root/backup/nextcloud/`
-- **Remote backup**: Daily at 5:00 AM → `ovh1.vinci.ovh:/backup/vlp/`
+- **Remote backup**: Daily at 5:00 AM → `azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/`
 
 ### Monitoring
 
-System metrics are collected by Prometheus and forwarded to Grafana Cloud for visualization.
+System metrics are collected by Prometheus and forwarded to Grafana Cloud for visualization: vlpfdnfr.grafana.net
 
 ### Updates
 
