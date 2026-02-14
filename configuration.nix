@@ -83,7 +83,7 @@
     enable = true;
     ports = [ 1337 ];
     settings = {
-      PasswordAuthentication = true;
+      PasswordAuthentication = false;
       AllowUsers = [ "vlp" ];
       UseDns = true;
       X11Forwarding = false;

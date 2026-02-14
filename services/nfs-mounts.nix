@@ -2,7 +2,7 @@
 , pkgs
 , ...
 }:
-{ 
+{
   # NAS folder mounting
   systemd.tmpfiles.rules = [
     "d /mnt/animations 0751 vlp vlp - -"

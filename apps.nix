@@ -3,7 +3,7 @@
 , ...
 }:
 {
- # Package definition
+  # Package definition
   environment.systemPackages = with pkgs; [
 
     # basic tools
@@ -35,7 +35,7 @@
     ipcalc
     curl
     wget
-    
+
     # misc
     file
     which
@@ -83,6 +83,5 @@
     caddy
     ttyd
     minidlna
-    inotify-tools
   ];
 }

@@ -3,7 +3,7 @@
 {
   # Create mount point for the LUKS encrypted disk
   systemd.tmpfiles.rules = [
-    "d /root/backup 0750 vlp vlp - -"
+    "d /root/backup 0750 root root - -"
   ];
 
   # Systemd service to unlock LUKS disk at boot
@@ -18,14 +18,14 @@
     unitConfig = {
       ConditionPathExists = config.age.secrets.luks_sdb1.path;
     };
-    
+
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       User = "root";
       Group = "root";
     };
-    
+
     script = ''
       # Check if device exists
       if [ ! -b /dev/sdb1 ]; then

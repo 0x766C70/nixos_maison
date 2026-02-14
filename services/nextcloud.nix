@@ -20,7 +20,7 @@
     settings = {
       overwriteProtocol = "https";
       default_phone_region = "FR";
-      trusted_domains = [ "sandbox.vlp.fdn.fr" "nuage.vlp.fdn.fr" ];
+      trusted_domains = [ "nuage.vlp.fdn.fr" ];
       trusted_proxies = [ "192.168.1.42" ];
       log_type = "file";
       memories.exiftool = "${lib.getExe pkgs.exiftool}";
@@ -43,9 +43,6 @@
     };
     extraAppsEnable = true;
     phpOptions."opcache.interned_strings_buffer" = "13";
-    # extra command
-    #nextcloud-occ maintenance:repair --include-expensive
   };
   services.nginx.virtualHosts."localhost".listen = [{ addr = "127.0.0.1"; port = 8080; }];
-
 }

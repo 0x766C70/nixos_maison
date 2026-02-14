@@ -91,72 +91,97 @@
   systemd.services."my_ip" = {
     description = "Monitor public IP and send email on change";
     script = ''
-      set -e  # Exit immediately on error
+            set -e  # Exit immediately on error
       
-      STATE_FILE="/var/lib/my_ip/last_ip"
+            STATE_FILE="/var/lib/my_ip/last_ip"
       
-      echo "Checking public IP at $(date)"
+            echo "Checking public IP at $(date)"
       
-      # Fetch current public IP
-      CURRENT_IP=$(${pkgs.curl}/bin/curl -s https://api.ipify.org?format=json | ${pkgs.jq}/bin/jq -r '.ip')
+            # Fetch current public IP
+            CURRENT_IP=$(${pkgs.curl}/bin/curl -s https://api.ipify.org?format=json | ${pkgs.jq}/bin/jq -r '.ip')
       
-      if [ -z "$CURRENT_IP" ]; then
-        echo "ERROR: Failed to fetch public IP"
-        exit 1
-      fi
+            if [ -z "$CURRENT_IP" ]; then
+              echo "ERROR: Failed to fetch public IP"
+              exit 1
+            fi
       
-      echo "Current IP: $CURRENT_IP"
+            echo "Current IP: $CURRENT_IP"
       
-      # Check if we have a previous IP
-      if [ -f "$STATE_FILE" ]; then
-        LAST_IP=$(cat "$STATE_FILE")
-        echo "Last known IP: $LAST_IP"
+            # Check if we have a previous IP
+            if [ -f "$STATE_FILE" ]; then
+              LAST_IP=$(cat "$STATE_FILE")
+              echo "Last known IP: $LAST_IP"
         
-        # Only send email if IP has changed
-        if [ "$CURRENT_IP" != "$LAST_IP" ]; then
-          echo "IP has changed from $LAST_IP to $CURRENT_IP - sending notification"
+              # Only send email if IP has changed
+              if [ "$CURRENT_IP" != "$LAST_IP" ]; then
+                echo "IP has changed from $LAST_IP to $CURRENT_IP - sending notification"
           
-          # Send email notification
-          echo "Subject: Maison IP Changed
-From: maison@vlp.fdn.fr
-To: thomas@criscione.fr
+                # Send email notification
+                echo "Subject: Maison IP Changed
+      From: maison@vlp.fdn.fr
+      To: thomas@criscione.fr
 
-Maison IP Address Changed
-==========================
+      Maison IP Address Changed
+      ==========================
 
-Previous IP: $LAST_IP
-New IP: $CURRENT_IP
-Changed at: $(date)
-" | ${pkgs.msmtp}/bin/msmtp thomas@criscione.fr
+      Previous IP: $LAST_IP
+      New IP: $CURRENT_IP
+      Changed at: $(date)
+      " | ${pkgs.msmtp}/bin/msmtp thomas@criscione.fr
           
-          # Update state file
-          echo "$CURRENT_IP" > "$STATE_FILE"
-          echo "Email sent and state file updated"
-        else
-          echo "IP unchanged - no notification sent"
-        fi
-      else
-        # First run - save IP and send initial notification
-        echo "First run - saving initial IP and sending notification"
-        echo "$CURRENT_IP" > "$STATE_FILE"
+                # Update state file
+                echo "$CURRENT_IP" > "$STATE_FILE"
+                echo "Email sent and state file updated"
+              else
+                echo "IP unchanged - no notification sent"
+              fi
+            else
+              # First run - save IP and send initial notification
+              echo "First run - saving initial IP and sending notification"
+              echo "$CURRENT_IP" > "$STATE_FILE"
         
-        echo "Subject: Maison IP Initial Check
-From: maison@vlp.fdn.fr
-To: thomas@criscione.fr
+              echo "Subject: Maison IP Initial Check
+      From: maison@vlp.fdn.fr
+      To: thomas@criscione.fr
 
-Maison IP Address Monitoring Started
-=====================================
+      Maison IP Address Monitoring Started
+      =====================================
 
-Initial IP: $CURRENT_IP
-Started at: $(date)
-" | ${pkgs.msmtp}/bin/msmtp thomas@criscione.fr
+      Initial IP: $CURRENT_IP
+      Started at: $(date)
+      " | ${pkgs.msmtp}/bin/msmtp thomas@criscione.fr
         
-        echo "Initial IP saved and notification sent"
-      fi
+              echo "Initial IP saved and notification sent"
+            fi
     '';
     serviceConfig = {
       Type = "oneshot";
       User = "root";
+    };
+  };
+
+
+  # ===========================
+  # NC preview generator
+  # ===========================
+
+  systemd.timers."nextcloud-preview-gen" = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";
+      Persistent = true;
+      Unit = "nextcloud-preview-gen.service";
+    };
+  };
+
+  systemd.services."nextcloud-preview-gen" = {
+    description = "Generate Nextcloud previews";
+    script = ''
+      ${config.services.nextcloud.occ}/bin/nextcloud-occ preview:pre-generate
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User = "nextcloud";
     };
   };
 }

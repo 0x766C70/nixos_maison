@@ -16,10 +16,6 @@
     '';
   };
 
-  #age.secrets.vlp_mbsync = {           
-  #  file = "${self}/secrets/vlp_mbsync.age";
-  #};
-
   programs.git = {
     enable = true;
     userName = "vlp";
