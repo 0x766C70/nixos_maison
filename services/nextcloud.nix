@@ -26,6 +26,8 @@
       memories.exiftool = "${lib.getExe pkgs.exiftool}";
       enabledPreviewProviders = [
         "OC\\Preview\\BMP"
+        "OC\\Preview\\PDF"
+        "OC\\Preview\\Movie"
         "OC\\Preview\\GIF"
         "OC\\Preview\\JPEG"
         "OC\\Preview\\Krita"
