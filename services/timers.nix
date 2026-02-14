@@ -13,17 +13,16 @@
   systemd.services."backup-failure-notification@" = {
     description = "Send email notification on backup failure for %i";
     script = ''
-      set -e
-      
       # Get the failed service name from the instance parameter
       FAILED_SERVICE="%i"
+      MONITORING_EMAIL="monitoring@vlp.fdn.fr"
       
       echo "Sending backup failure notification for $FAILED_SERVICE at $(date)"
       
-      # Send email notification
-      echo "Subject: Backup Failed on Maison - $FAILED_SERVICE
+      # Send email notification - don't use set -e to ensure we always attempt to send
+      if echo "Subject: Backup Failed on Maison - $FAILED_SERVICE
 From: maison@vlp.fdn.fr
-To: monitoring@vlp.fdn.fr
+To: $MONITORING_EMAIL
 
 Backup Failure Alert
 ====================
@@ -37,9 +36,12 @@ A backup job has failed. Check system logs for details:
 
 -- 
 Automated notification from NixOS Maison
-" | ${pkgs.msmtp}/bin/msmtp monitoring@vlp.fdn.fr
-      
-      echo "Failure notification sent successfully"
+" | ${pkgs.msmtp}/bin/msmtp "$MONITORING_EMAIL" 2>&1; then
+        echo "Failure notification sent successfully to $MONITORING_EMAIL"
+      else
+        echo "ERROR: Failed to send email notification to $MONITORING_EMAIL"
+        exit 1
+      fi
     '';
     serviceConfig = {
       Type = "oneshot";
