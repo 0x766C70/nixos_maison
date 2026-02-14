@@ -13,35 +13,35 @@
   systemd.services."backup-failure-notification@" = {
     description = "Send email notification on backup failure for %i";
     script = ''
-      # Get the failed service name from the instance parameter
-      FAILED_SERVICE="%i"
-      MONITORING_EMAIL="monitoring@vlp.fdn.fr"
+            # Get the failed service name from the instance parameter
+            FAILED_SERVICE="%i"
+            MONITORING_EMAIL="monitoring@vlp.fdn.fr"
       
-      echo "Sending backup failure notification for $FAILED_SERVICE at $(date)"
+            echo "Sending backup failure notification for $FAILED_SERVICE at $(date)"
       
-      # Send email notification - don't use set -e to ensure we always attempt to send
-      if echo "Subject: Backup Failed on Maison - $FAILED_SERVICE
-From: maison@vlp.fdn.fr
-To: $MONITORING_EMAIL
+            # Send email notification - don't use set -e to ensure we always attempt to send
+            if echo "Subject: Backup Failed on Maison - $FAILED_SERVICE
+      From: maison@vlp.fdn.fr
+      To: $MONITORING_EMAIL
 
-Backup Failure Alert
-====================
+      Backup Failure Alert
+      ====================
 
-Service: $FAILED_SERVICE
-Host: $(hostname)
-Failed at: $(date)
+      Service: $FAILED_SERVICE
+      Host: $(hostname)
+      Failed at: $(date)
 
-A backup job has failed. Check system logs for details:
-  journalctl -u $FAILED_SERVICE -n 50
+      A backup job has failed. Check system logs for details:
+        journalctl -u $FAILED_SERVICE -n 50
 
--- 
-Automated notification from NixOS Maison
-" | ${pkgs.msmtp}/bin/msmtp "$MONITORING_EMAIL" 2>&1; then
-        echo "Failure notification sent successfully to $MONITORING_EMAIL"
-      else
-        echo "ERROR: Failed to send email notification to $MONITORING_EMAIL"
-        exit 1
-      fi
+      -- 
+      Automated notification from NixOS Maison
+      " | ${pkgs.msmtp}/bin/msmtp "$MONITORING_EMAIL" 2>&1; then
+              echo "Failure notification sent successfully to $MONITORING_EMAIL"
+            else
+              echo "ERROR: Failed to send email notification to $MONITORING_EMAIL"
+              exit 1
+            fi
     '';
     serviceConfig = {
       Type = "oneshot";

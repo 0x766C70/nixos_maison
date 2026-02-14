@@ -5,8 +5,7 @@
   home.homeDirectory = "/home/vlp";
 
   home.packages = with pkgs; [
-    neomutt
-    #weechat
+    # home package list
   ];
 
   home.file.gpgSshKeys = {
@@ -43,7 +42,6 @@
 
   programs.alacritty = {
     enable = true;
-    # custom settings
     settings = {
       env.TERM = "xterm-256color";
       font = {
