@@ -70,6 +70,15 @@
       
       echo "Starting Nextcloud backup at $(date)"
       
+      # Verify that /root/backup is mounted before proceeding
+      if ! ${pkgs.util-linux}/bin/mountpoint -q /root/backup; then
+        echo "ERROR: /root/backup is not mounted! Backup aborted to prevent writing to local storage."
+        echo "Check that the luks-sdb1-unlock service succeeded: systemctl status luks-sdb1-unlock.service"
+        exit 1
+      fi
+      
+      echo "/root/backup is properly mounted - proceeding with backup"
+      
       # Run rsync backup
       ${pkgs.rsync}/bin/rsync -a --delete \
         /var/lib/nextcloud/data/ \
