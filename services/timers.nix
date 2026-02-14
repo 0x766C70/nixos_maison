@@ -6,6 +6,48 @@
   ];
 
   # ===========================
+  # Backup Failure Notification
+  # ===========================
+
+  # Service that sends email notification when backup fails
+  systemd.services."backup-failure-notification@" = {
+    description = "Send email notification on backup failure for %i";
+    script = ''
+      set -e
+      
+      # Get the failed service name from the instance parameter
+      FAILED_SERVICE="%i"
+      
+      echo "Sending backup failure notification for $FAILED_SERVICE at $(date)"
+      
+      # Send email notification
+      echo "Subject: Backup Failed on Maison - $FAILED_SERVICE
+From: maison@vlp.fdn.fr
+To: monitoring@vlp.fdn.fr
+
+Backup Failure Alert
+====================
+
+Service: $FAILED_SERVICE
+Host: $(hostname)
+Failed at: $(date)
+
+A backup job has failed. Check system logs for details:
+  journalctl -u $FAILED_SERVICE -n 50
+
+-- 
+Automated notification from NixOS Maison
+" | ${pkgs.msmtp}/bin/msmtp monitoring@vlp.fdn.fr
+      
+      echo "Failure notification sent successfully"
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+  };
+
+  # ===========================
   # Backup Timers
   # ===========================
 
@@ -37,8 +79,8 @@
       Type = "oneshot";
       User = "root";
     };
-    # Optional: Add failure notification
-    # onFailure = [ "backup-failure-notification.service" ];
+    # Send email notification on failure
+    onFailure = [ "backup-failure-notification@%n.service" ];
   };
 
   # Remote backup at 5 AM
@@ -70,8 +112,8 @@
       Type = "oneshot";
       User = "root";
     };
-    # Optional: Add failure notification
-    # onFailure = [ "backup-failure-notification.service" ];
+    # Send email notification on failure
+    onFailure = [ "backup-failure-notification@%n.service" ];
   };
 
   # ===========================
