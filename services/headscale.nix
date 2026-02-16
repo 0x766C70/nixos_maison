@@ -17,9 +17,9 @@
       # DNS configuration - because naming things is important
       # NixOS 25.11 changed the DNS structure from dns_config to dns
       dns = {
-        base_domain = "vlp.fdn.fr";  # Required when using MagicDNS
+        base_domain = "tailnet.vlp.fdn.fr";  # Use subdomain to avoid conflict with server_url
         magic_dns = true;
-        search_domains = [ "hs.vlp.fdn.fr" ];  # Renamed from 'domains'
+        search_domains = [ "tailnet.vlp.fdn.fr" ];  # Renamed from 'domains'
         nameservers = {
           global = [ "1.1.1.1" "1.0.0.1" ];  # Cloudflare DNS (now under nameservers.global)
         };

@@ -16,6 +16,7 @@ Your headscale instance is configured at **https://hs.vlp.fdn.fr** and provides:
 ### Service Details
 
 - **Server URL**: `https://hs.vlp.fdn.fr`
+- **MagicDNS Domain**: `tailnet.vlp.fdn.fr` (devices become `hostname.tailnet.vlp.fdn.fr`)
 - **Local Port**: `8085` (not exposed externally)
 - **Reverse Proxy**: Caddy handles HTTPS and external access
 - **Database**: SQLite (simple, reliable, no separate DB server needed)
@@ -63,8 +64,8 @@ On your device:
 # Check status
 tailscale status
 
-# Test connectivity to other devices
-ping hostname.vlp.fdn.fr
+# Test connectivity to other devices (using MagicDNS)
+ping hostname.tailnet.vlp.fdn.fr
 ```
 
 ## Common Operations
