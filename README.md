@@ -13,6 +13,7 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 - **Encrypted Storage**: LUKS-encrypted backup disk with automatic unlock
 - **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
 - **Secrets Management**: Agenix for encrypted configuration secrets
+- **Mesh VPN**: Headscale for secure device-to-device connectivity
 
 ## 📁 Structure
 
@@ -29,6 +30,7 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 │   ├── dlna.nix              # Media streaming
 │   ├── prom.nix              # Monitoring
 │   ├── firewall.nix          # nftables + NAT
+│   ├── headscale.nix         # Mesh VPN
 │   ├── timers.nix            # Backup automation
 │   └── ...
 └── secrets/                   # Age-encrypted secrets
@@ -59,6 +61,7 @@ The server runs on static IP `192.168.1.42` with the following services:
 - Nextcloud: `https://nuage.vlp.fdn.fr`
 - Transmission: `https://dl.vlp.fdn.fr`
 - Terminal: `https://ttyd.vlp.fdn.fr`
+- Headscale: `https://hs.vlp.fdn.fr` (see [HEADSCALE.md](HEADSCALE.md) for setup)
 
 ## 🔐 Secrets Management
 
