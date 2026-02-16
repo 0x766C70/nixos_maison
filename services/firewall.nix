@@ -7,7 +7,7 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8022 8023 8024 ];
+    allowedTCPPorts = [ 80 443 1337 8022 8023 8024 8085];
   };
   networking.nat = {
     enable = true;

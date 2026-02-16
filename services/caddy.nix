@@ -32,7 +32,6 @@
     virtualHosts."ai.web.vlp.fdn.fr".extraConfig = ''
       reverse_proxy 192.168.101.11:80
     '';
-    # Headscale - mesh VPN control server
     virtualHosts."hs.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://127.0.0.1:8085
     '';

@@ -12,7 +12,6 @@
       ./services/transmission.nix
       ./services/caddy.nix
       ./services/headscale.nix
-      ./services/ttyd.nix
       ./services/nextcloud.nix
       ./services/prom.nix
       ./services/timers.nix
