@@ -15,12 +15,14 @@
       server_url = "https://hs.vlp.fdn.fr";
       
       # DNS configuration - because naming things is important
-      dns_config = {
-        override_local_dns = true;
-        base_domain = "vlp.fdn.fr";
+      # NixOS 25.11 changed the DNS structure from dns_config to dns
+      dns = {
+        base_domain = "vlp.fdn.fr";  # Required when using MagicDNS
         magic_dns = true;
-        domains = [ "hs.vlp.fdn.fr" ];
-        nameservers = [ "1.1.1.1" "1.0.0.1" ]; # Cloudflare DNS
+        search_domains = [ "hs.vlp.fdn.fr" ];  # Renamed from 'domains'
+        nameservers = {
+          global = [ "1.1.1.1" "1.0.0.1" ];  # Cloudflare DNS (now under nameservers.global)
+        };
       };
       
       # IP prefixes for the VPN network
