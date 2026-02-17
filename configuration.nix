@@ -17,6 +17,15 @@
       ./services/timers.nix
       ./services/nfs-mounts.nix
       ./services/luks-disk.nix
+      # New services for improved functionality
+      ./services/fail2ban.nix
+      ./services/adguard.nix
+      ./services/jellyfin.nix
+      ./services/homepage.nix
+      ./services/auto-upgrade.nix
+      ./services/smartd.nix
+      ./services/uptime-kuma.nix
+      ./services/paperless.nix
     ];
 
   # Bootloader.

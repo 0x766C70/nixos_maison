@@ -35,5 +35,21 @@
     virtualHosts."hs.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://127.0.0.1:8085
     '';
+    # Homepage dashboard - family portal
+    virtualHosts."home.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:8082
+    '';
+    # Jellyfin media server
+    virtualHosts."media.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:8096
+    '';
+    # Uptime monitoring
+    virtualHosts."status.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:3001
+    '';
+    # Paperless document management
+    virtualHosts."docs.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:28981
+    '';
   };
 }
