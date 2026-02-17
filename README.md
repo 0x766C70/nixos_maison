@@ -4,12 +4,12 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 
 ## ✨ Features
 
-- **Cloud Storage**: Nextcloud 31 with PostgreSQL backend and Redis caching
+- **Cloud Storage**: Nextcloud 32 with PostgreSQL backend and Redis caching
 - **Reverse Proxy**: Caddy server managing multiple virtual hosts with HTTPS
 - **Media Server**: MiniDLNA streaming to local network devices
 - **Torrent Client**: Transmission with Flood web interface
 - **Monitoring**: Prometheus with node exporter and Grafana Cloud integration
-- **Security**: fail2ban intrusion prevention for SSH and Caddy basic auth brute force protection
+- **Security**: fail2ban intrusion prevention for SSH, Caddy basic auth, and Nextcloud brute force protection
 - **Automated Backups**: Scheduled Nextcloud and system backups to remote server
 - **Encrypted Storage**: LUKS-encrypted backup disk with automatic unlock
 - **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
@@ -90,7 +90,7 @@ System metrics are collected by Prometheus and forwarded to Grafana Cloud for vi
 
 ### Security (fail2ban)
 
-fail2ban protects SSH (port 1337) and Caddy basic auth from brute force attacks:
+fail2ban protects SSH (port 1337), Caddy basic auth, and Nextcloud from brute force attacks:
 
 **SSH Protection:**
 - **Ban threshold**: 5 failed attempts within 10 minutes
@@ -105,6 +105,13 @@ fail2ban protects SSH (port 1337) and Caddy basic auth from brute force attacks:
   - `laptop.vlp.fdn.fr` (Laptop remote access)
 - **Log format**: JSON logs in `/var/log/caddy/access.log`
 
+**Nextcloud Login Protection:**
+- **Ban threshold**: 5 failed login attempts within 10 minutes
+- **Ban duration**: 2 hours
+- **Protected service**: `nuage.vlp.fdn.fr` (Nextcloud instance)
+- **Log format**: JSON logs in `/var/lib/nextcloud/data/nextcloud.log`
+- **Detection**: Failed logins and trusted domain errors
+
 ```bash
 # Check fail2ban status
 sudo systemctl status fail2ban
@@ -115,11 +122,17 @@ sudo fail2ban-client status sshd
 # View banned IPs for Caddy
 sudo fail2ban-client status caddy-auth
 
+# View banned IPs for Nextcloud
+sudo fail2ban-client status nextcloud
+
 # Manually ban an IP (for SSH)
 sudo fail2ban-client set sshd banip <IP_ADDRESS>
 
 # Manually ban an IP (for Caddy)
 sudo fail2ban-client set caddy-auth banip <IP_ADDRESS>
+
+# Manually ban an IP (for Nextcloud)
+sudo fail2ban-client set nextcloud banip <IP_ADDRESS>
 
 # Manually unban an IP (for SSH)
 sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
@@ -127,8 +140,14 @@ sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
 # Manually unban an IP (for Caddy)
 sudo fail2ban-client set caddy-auth unbanip <IP_ADDRESS>
 
+# Manually unban an IP (for Nextcloud)
+sudo fail2ban-client set nextcloud unbanip <IP_ADDRESS>
+
 # View recent authentication failures in Caddy logs
 sudo grep '"status":401' /var/log/caddy/access.log | tail -n 50
+
+# View recent login failures in Nextcloud logs
+sudo grep '"Login failed:' /var/lib/nextcloud/data/nextcloud.log | tail -n 50
 ```
 
 ### Updates
