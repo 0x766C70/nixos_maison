@@ -4,19 +4,13 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 
 ## ✨ Features
 
-- **Cloud Storage**: Nextcloud 32 with PostgreSQL backend and Redis caching
-- **Media Server**: Jellyfin (modern Netflix-like UI) + MiniDLNA for DLNA devices
-- **Document Management**: Paperless-ngx with OCR for digitizing family documents
+- **Cloud Storage**: Nextcloud 31 with PostgreSQL backend and Redis caching
 - **Reverse Proxy**: Caddy server managing multiple virtual hosts with HTTPS
+- **Media Server**: MiniDLNA streaming to local network devices
 - **Torrent Client**: Transmission with Flood web interface
-- **Family Portal**: Homepage dashboard with links to all services
-- **Network Security**: AdGuard Home (DNS-based ad blocking + parental controls)
-- **Intrusion Prevention**: fail2ban protecting SSH and web services
-- **Monitoring**: Prometheus + Grafana Cloud + Uptime Kuma for service monitoring
+- **Monitoring**: Prometheus with node exporter and Grafana Cloud integration
 - **Automated Backups**: Scheduled Nextcloud and system backups to remote server
-- **Auto Updates**: Weekly security updates with email notifications
 - **Encrypted Storage**: LUKS-encrypted backup disk with automatic unlock
-- **Disk Health**: S.M.A.R.T. monitoring with failure alerts
 - **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
 - **Secrets Management**: Agenix for encrypted configuration secrets
 - **Mesh VPN**: Headscale for secure device-to-device connectivity
@@ -32,17 +26,9 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 ├── services/                  # Modular service configurations
 │   ├── caddy.nix             # Reverse proxy
 │   ├── nextcloud.nix         # Cloud storage
-│   ├── jellyfin.nix          # Media server
 │   ├── transmission.nix      # Torrent client
-│   ├── dlna.nix              # DLNA media streaming
-│   ├── paperless.nix         # Document management
-│   ├── homepage.nix          # Dashboard
-│   ├── adguard.nix           # DNS ad blocker
-│   ├── fail2ban.nix          # Intrusion prevention
-│   ├── uptime-kuma.nix       # Service monitoring
-│   ├── smartd.nix            # Disk health monitoring
-│   ├── auto-upgrade.nix      # Automatic updates
-│   ├── prom.nix              # Prometheus metrics
+│   ├── dlna.nix              # Media streaming
+│   ├── prom.nix              # Monitoring
 │   ├── firewall.nix          # nftables + NAT
 │   ├── headscale.nix         # Mesh VPN
 │   ├── timers.nix            # Backup automation
@@ -72,16 +58,10 @@ sudo nixos-rebuild switch --flake .#maison
 
 The server runs on static IP `192.168.1.42` with the following services:
 
-- **Family Portal**: `https://home.vlp.fdn.fr` - Dashboard with all service links
-- **Nextcloud**: `https://nuage.vlp.fdn.fr` - Cloud storage
-- **Jellyfin**: `https://media.vlp.fdn.fr` or `http://192.168.1.42:8096` - Media streaming
-- **Transmission**: `https://dl.vlp.fdn.fr` - Torrent downloads
-- **Paperless**: `https://docs.vlp.fdn.fr` - Document management
-- **AdGuard Home**: `http://192.168.1.42:3000` - DNS & ad blocker (local only)
-- **Uptime Kuma**: `https://status.vlp.fdn.fr` - Service monitoring
-- **Headscale**: `https://hs.vlp.fdn.fr` - VPN control panel (see [HEADSCALE.md](HEADSCALE.md))
-
-📖 **See [NEW_FEATURES.md](NEW_FEATURES.md) for detailed setup guides for all services!**
+- Nextcloud: `https://nuage.vlp.fdn.fr`
+- Transmission: `https://dl.vlp.fdn.fr`
+- Terminal: `https://ttyd.vlp.fdn.fr`
+- Headscale: `https://hs.vlp.fdn.fr` (see [HEADSCALE.md](HEADSCALE.md) for setup)
 
 ## 🔐 Secrets Management
 

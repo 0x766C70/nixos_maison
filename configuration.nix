@@ -17,22 +17,6 @@
       ./services/timers.nix
       ./services/nfs-mounts.nix
       ./services/luks-disk.nix
-      # New services for improved functionality
-      ./services/fail2ban.nix
-      ./services/adguard.nix
-      ./services/jellyfin.nix
-      ./services/homepage.nix
-      ./services/auto-upgrade.nix
-      ./services/smartd.nix
-      ./services/uptime-kuma.nix
-      ./services/paperless.nix
-      # Optional services - uncomment to enable
-      # ./services/vaultwarden.nix    # Password manager for family
-      # ./services/calibre-web.nix    # Ebook library
-      # ./services/freshrss.nix       # RSS feed reader
-      # ./services/photoprism.nix     # Photo management
-      # ./services/grafana.nix        # Local monitoring dashboard
-      # ./services/restic.nix         # Versioned encrypted backups
     ];
 
   # Bootloader.
