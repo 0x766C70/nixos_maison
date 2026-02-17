@@ -76,13 +76,14 @@
     # Match JSON logs with 401 Unauthorized status (failed basic auth)
     # Caddy JSON logs: "request":{"remote_ip":"x.x.x.x",...} followed by "status":401
     # Note: remote_ip appears before status in the log line
-    failregex = ^.*"remote_ip":\s*"<ADDR>".*"status":\s*401.*$
+    failregex = "remote_ip":\s*"<ADDR>".*"status":\s*401
     
     # Ignore successful authentications (status 200, 301, 302, etc.)
-    ignoreregex = ^.*"status":\s*[23]\d{2}.*$
+    ignoreregex = "status":\s*[23]\d{2}
     
     # Date pattern for Caddy's Unix timestamp format in "ts" field
     # Caddy uses epoch time as floating point: "ts":1708197007.123456
-    datepattern = {^LN-BEG}"ts":%%s
+    # %%s matches seconds, \. matches literal dot, %%f matches fractional seconds
+    datepattern = {^LN-BEG}"ts":%%s\.%%f
   '';
 }
