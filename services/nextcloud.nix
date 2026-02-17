@@ -22,6 +22,7 @@
       default_phone_region = "FR";
       trusted_domains = [ "nuage.vlp.fdn.fr" ];
       trusted_proxies = [ "192.168.1.42" ];
+      forwarded_for_headers = [ "X-Forwarded-For" "X-Real-IP" ];
       log_type = "file";
       memories.exiftool = "${lib.getExe pkgs.exiftool}";
       enabledPreviewProviders = [

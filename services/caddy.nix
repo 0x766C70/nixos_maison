@@ -21,7 +21,12 @@
       reverse_proxy http://localhost:9091
     '';
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy http://localhost:8080
+      reverse_proxy http://localhost:8080 {
+        # Pass real client IP to Nextcloud
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+      }
     '';
     virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
       basic_auth / {
