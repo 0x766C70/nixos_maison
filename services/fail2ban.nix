@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  # fail2ban configuration for SSH brute force prevention
+  # fail2ban configuration for SSH and Caddy basic auth brute force prevention
   services.fail2ban = {
     enable = true;
     
@@ -14,8 +14,9 @@
     # Ban action to use (nftables-multiport works with networking.nftables.enable = true)
     banaction = "nftables-multiport";
     
-    # Configure SSH jail
+    # Configure jails
     jails = {
+      # SSH jail
       sshd = {
         settings = {
           # Enable the jail
@@ -34,6 +35,52 @@
           findtime = "10m";
         };
       };
+      
+      # Caddy basic auth jail
+      caddy-auth = {
+        settings = {
+          # Enable the jail
+          enabled = true;
+          
+          # HTTP and HTTPS ports
+          port = "http,https";
+          
+          # Custom filter for Caddy basic auth failures
+          filter = "caddy-auth";
+          
+          # Path to Caddy access log
+          logpath = "/var/log/caddy/access.log";
+          
+          # Time window to count failures (10 minutes)
+          findtime = "10m";
+          
+          # Maximum retries before ban (more lenient for auth: 3 attempts)
+          maxretry = 3;
+          
+          # Ban time for auth failures (2 hours)
+          bantime = "2h";
+        };
+      };
     };
   };
+  
+  # Custom fail2ban filter for Caddy basic auth failures
+  environment.etc."fail2ban/filter.d/caddy-auth.conf".text = ''
+    # Fail2Ban filter for Caddy basic auth failures
+    # 
+    # Caddy logs authentication failures in JSON format with status code 401
+    # This filter detects those failures and extracts the client IP address
+    
+    [Definition]
+    
+    # Match JSON logs with 401 Unauthorized status (failed basic auth)
+    # Caddy JSON logs include: request.client_ip, status, request.uri, etc.
+    failregex = ^.*"status":\s*401.*"client_ip":\s*"<ADDR>".*$
+    
+    # Ignore successful authentications (status 200, 301, 302, etc.)
+    ignoreregex = ^.*"status":\s*[23]\d{2}.*$
+    
+    # Use single line matching (Caddy logs each request as a single JSON line)
+    datepattern = {^LN-BEG}"ts":\s*%%s\.%%f
+  '';
 }

@@ -5,6 +5,15 @@
 {
   services.caddy = {
     enable = true;
+    
+    # Global logging configuration for fail2ban integration
+    globalConfig = ''
+      log {
+        output file /var/log/caddy/access.log
+        format json
+      }
+    '';
+    
     virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
       basic_auth {
         mlc {file.${config.age.secrets.caddy_mlc.path}}
@@ -36,4 +45,9 @@
       reverse_proxy http://127.0.0.1:8085
     '';
   };
+  
+  # Ensure log directory exists with proper permissions
+  systemd.tmpfiles.rules = [
+    "d /var/log/caddy 0750 caddy caddy -"
+  ];
 }
