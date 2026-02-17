@@ -1,14 +1,14 @@
-{ config, pkgs, ... }:
+{ config, ... }:
 
 {
   # fail2ban configuration for SSH brute force prevention
   services.fail2ban = {
     enable = true;
     
-    # Maximum number of login attempts before ban
+    # Maximum number of login attempts before ban (global default)
     maxretry = 5;
     
-    # How long an IP stays banned (1 hour)
+    # How long an IP stays banned (global default: 1 hour)
     bantime = "1h";
     
     # Ban action to use (nftables-multiport works with networking.nftables.enable = true)
@@ -30,14 +30,8 @@
           # Filter to use for detecting failed SSH attempts
           filter = "sshd";
           
-          # Maximum retry attempts before ban
-          maxretry = 5;
-          
           # Time window to count failures (10 minutes)
           findtime = "10m";
-          
-          # Ban duration (1 hour)
-          bantime = "1h";
         };
       };
     };
