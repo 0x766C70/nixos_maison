@@ -1,4 +1,4 @@
-{ ... }:
+{ config, pkgs, ... }:
 
 {
   # fail2ban configuration for SSH brute force prevention
