@@ -35,5 +35,43 @@
     virtualHosts."hs.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://127.0.0.1:8085
     '';
+    # Homepage dashboard - family portal
+    virtualHosts."home.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:8082
+    '';
+    # Jellyfin media server
+    virtualHosts."media.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:8096
+    '';
+    # Uptime monitoring
+    virtualHosts."status.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:3001
+    '';
+    # Paperless document management
+    virtualHosts."docs.vlp.fdn.fr".extraConfig = ''
+      reverse_proxy http://127.0.0.1:28981
+    '';
+    
+    # Optional services (uncomment when enabled in configuration.nix)
+    # Vaultwarden password manager
+    # virtualHosts."vault.vlp.fdn.fr".extraConfig = ''
+    #   reverse_proxy http://127.0.0.1:8222
+    # '';
+    # Calibre-web ebook library
+    # virtualHosts."books.vlp.fdn.fr".extraConfig = ''
+    #   reverse_proxy http://127.0.0.1:8083
+    # '';
+    # FreshRSS feed reader
+    # virtualHosts."rss.vlp.fdn.fr".extraConfig = ''
+    #   reverse_proxy http://127.0.0.1:8084
+    # '';
+    # PhotoPrism photo management
+    # virtualHosts."photos.vlp.fdn.fr".extraConfig = ''
+    #   reverse_proxy http://127.0.0.1:2342
+    # '';
+    # Grafana local monitoring
+    # virtualHosts."grafana.vlp.fdn.fr".extraConfig = ''
+    #   reverse_proxy http://127.0.0.1:3300
+    # '';
   };
 }
