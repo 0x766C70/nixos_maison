@@ -128,7 +128,7 @@ sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
 sudo fail2ban-client set caddy-auth unbanip <IP_ADDRESS>
 
 # View recent authentication failures in Caddy logs
-sudo journalctl -u caddy -n 50 | grep 401
+sudo grep '"status":401' /var/log/caddy/access.log | tail -n 50
 ```
 
 ### Updates
