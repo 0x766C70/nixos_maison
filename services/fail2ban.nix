@@ -29,55 +29,55 @@
     jails = {
       # SSH protection on custom port 1337
       # Prevents brute-force attacks on SSH service
-      sshd = ''
-        enabled = true
-        port = 1337
-        filter = sshd
-        maxretry = 3
-        findtime = 5m
-        bantime = 2h
-        logpath = /var/log/auth.log
-        action = %(action_mwl)s
-      '';
+      sshd.settings = {
+        enabled = true;
+        port = "1337";
+        filter = "sshd";
+        maxretry = 3;
+        findtime = "5m";
+        bantime = "2h";
+        logpath = "/var/log/auth.log";
+        action = "%(action_mwl)s";
+      };
       
       # Caddy/HTTP basic auth protection
       # Protects services with basic authentication (dl.vlp.fdn.fr, laptop.vlp.fdn.fr)
-      caddy-auth = ''
-        enabled = true
-        port = http,https
-        filter = caddy-auth
-        maxretry = 5
-        findtime = 10m
-        bantime = 1h
-        logpath = /var/log/caddy/access*.log
-        action = %(action_mwl)s
-      '';
+      caddy-auth.settings = {
+        enabled = true;
+        port = "http,https";
+        filter = "caddy-auth";
+        maxretry = 5;
+        findtime = "10m";
+        bantime = "1h";
+        logpath = "/var/log/caddy/access*.log";
+        action = "%(action_mwl)s";
+      };
       
       # Nextcloud brute-force protection
       # Prevents credential stuffing attacks on Nextcloud login
-      nextcloud = ''
-        enabled = true
-        port = http,https
-        filter = nextcloud
-        maxretry = 3
-        findtime = 10m
-        bantime = 1h
-        logpath = /var/lib/nextcloud/data/nextcloud.log
-        action = %(action_mwl)s
-      '';
+      nextcloud.settings = {
+        enabled = true;
+        port = "http,https";
+        filter = "nextcloud";
+        maxretry = 3;
+        findtime = "10m";
+        bantime = "1h";
+        logpath = "/var/lib/nextcloud/data/nextcloud.log";
+        action = "%(action_mwl)s";
+      };
       
       # Generic HTTP authentication failures
       # Catches any HTTP auth failures not covered by specific jails
-      http-auth = ''
-        enabled = true
-        port = http,https
-        filter = apache-auth
-        maxretry = 5
-        findtime = 10m
-        bantime = 1h
-        logpath = /var/log/caddy/access*.log
-        action = %(action_mwl)s
-      '';
+      http-auth.settings = {
+        enabled = true;
+        port = "http,https";
+        filter = "apache-auth";
+        maxretry = 5;
+        findtime = "10m";
+        bantime = "1h";
+        logpath = "/var/log/caddy/access*.log";
+        action = "%(action_mwl)s";
+      };
     };
   };
   
