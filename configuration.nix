@@ -17,7 +17,6 @@
       ./services/timers.nix
       ./services/nfs-mounts.nix
       ./services/luks-disk.nix
-      ./services/fail2ban.nix
     ];
 
   # Bootloader.

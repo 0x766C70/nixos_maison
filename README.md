@@ -14,7 +14,6 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 - **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
 - **Secrets Management**: Agenix for encrypted configuration secrets
 - **Mesh VPN**: Headscale for secure device-to-device connectivity
-- **Intrusion Prevention**: fail2ban protecting SSH, web services, and Nextcloud from brute-force attacks
 
 ## 📁 Structure
 
@@ -31,7 +30,6 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 │   ├── dlna.nix              # Media streaming
 │   ├── prom.nix              # Monitoring
 │   ├── firewall.nix          # nftables + NAT
-│   ├── fail2ban.nix          # Intrusion prevention
 │   ├── headscale.nix         # Mesh VPN
 │   ├── timers.nix            # Backup automation
 │   └── ...
@@ -77,49 +75,6 @@ agenix -e secrets/mySecret.age
 Secrets are defined in `secrets/secrets.nix` and configured in `configuration.nix`.
 
 ## 🔧 Maintenance
-
-### Security & Intrusion Prevention
-
-The server is protected by **fail2ban**, which automatically bans IPs after repeated failed authentication attempts.
-
-#### fail2ban Management
-
-Use the included management script for easy monitoring:
-
-```bash
-# Check fail2ban status and active jails
-sudo scripts/fail2ban-manager.sh status
-
-# View all currently banned IPs
-sudo scripts/fail2ban-manager.sh banned
-
-# Show detailed jail statistics
-sudo scripts/fail2ban-manager.sh jails
-
-# View recent ban activity
-sudo scripts/fail2ban-manager.sh activity
-
-# Unban an IP address (if you locked yourself out!)
-sudo scripts/fail2ban-manager.sh unban 203.0.113.42
-
-# Manually ban an IP in a specific jail
-sudo scripts/fail2ban-manager.sh ban sshd 203.0.113.99
-
-# View fail2ban logs
-sudo scripts/fail2ban-manager.sh logs 100
-
-# Monitor banned IPs in real-time
-watch -n 5 sudo scripts/fail2ban-manager.sh banned
-```
-
-#### Protected Services
-
-- **SSH** (port 1337): 3 failed attempts → 2-hour ban
-- **Caddy Basic Auth** (dl.vlp.fdn.fr, laptop.vlp.fdn.fr): 5 attempts → 1-hour ban
-- **Nextcloud**: 3 failed logins → 1-hour ban
-- **HTTP Auth**: 5 failed attempts → 1-hour ban
-
-All bans trigger email notifications to `monitoring@vlp.fdn.fr`.
 
 ### Backups
 
