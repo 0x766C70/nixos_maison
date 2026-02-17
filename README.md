@@ -9,6 +9,7 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 - **Media Server**: MiniDLNA streaming to local network devices
 - **Torrent Client**: Transmission with Flood web interface
 - **Monitoring**: Prometheus with node exporter and Grafana Cloud integration
+- **Security**: fail2ban intrusion prevention for SSH brute force protection
 - **Automated Backups**: Scheduled Nextcloud and system backups to remote server
 - **Encrypted Storage**: LUKS-encrypted backup disk with automatic unlock
 - **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
@@ -30,6 +31,7 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 │   ├── dlna.nix              # Media streaming
 │   ├── prom.nix              # Monitoring
 │   ├── firewall.nix          # nftables + NAT
+│   ├── fail2ban.nix          # Intrusion prevention
 │   ├── headscale.nix         # Mesh VPN
 │   ├── timers.nix            # Backup automation
 │   └── ...
@@ -85,6 +87,27 @@ Automated backups run via systemd timers:
 ### Monitoring
 
 System metrics are collected by Prometheus and forwarded to Grafana Cloud for visualization: vlpfdnfr.grafana.net
+
+### Security (fail2ban)
+
+fail2ban protects SSH (port 1337) from brute force attacks:
+- **Ban threshold**: 5 failed attempts within 10 minutes
+- **Ban duration**: 1 hour
+- **Backend**: systemd journal (NixOS native)
+
+```bash
+# Check fail2ban status
+sudo systemctl status fail2ban
+
+# View banned IPs
+sudo fail2ban-client status sshd
+
+# Manually ban an IP
+sudo fail2ban-client set sshd banip <IP_ADDRESS>
+
+# Manually unban an IP
+sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
+```
 
 ### Updates
 
