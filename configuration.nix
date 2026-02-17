@@ -26,6 +26,13 @@
       ./services/smartd.nix
       ./services/uptime-kuma.nix
       ./services/paperless.nix
+      # Optional services - uncomment to enable
+      # ./services/vaultwarden.nix    # Password manager for family
+      # ./services/calibre-web.nix    # Ebook library
+      # ./services/freshrss.nix       # RSS feed reader
+      # ./services/photoprism.nix     # Photo management
+      # ./services/grafana.nix        # Local monitoring dashboard
+      # ./services/restic.nix         # Versioned encrypted backups
     ];
 
   # Bootloader.
