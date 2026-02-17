@@ -129,9 +129,11 @@
     
     # Pattern 1: Failed login attempts - matches "Login failed:" in the message field
     # Pattern 2: Trusted domain errors - can indicate brute force attempts on wrong domains
+    # Pattern 3: Two-factor challenge failed - can indicate brute force attempts on 2FA
     failregex = ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Login failed:
                 ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Trusted domain error\.
-    
+                ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Two-factor challenge failed:
+
     # Ignore successful logins and other non-failure events
     ignoreregex = 
     

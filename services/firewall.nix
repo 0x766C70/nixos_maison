@@ -9,6 +9,12 @@
     enable = true;
     allowedTCPPorts = [ 80 443 1337 8022 8023 8024 8085];
   };
+  # 80 - 443 Caddy/nextcloud
+  # 8082 - ssh to webserver
+  # 8083 - ssh to new-dl
+  # 8024 - ssh to vlaptop
+  # 8085 - headscale
+
   networking.nat = {
     enable = true;
     internalInterfaces = [ "incusbr1" ];
