@@ -13,9 +13,6 @@
     # Ban duration in seconds (1 hour = 3600)
     bantime = "1h";
     
-    # Time window for counting retries (10 minutes)
-    findtime = "10m";
-    
     # Ban action with email notifications
     # Uses msmtp configured in services/msmtp.nix to send alerts
     banaction = "iptables-multiport";
