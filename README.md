@@ -63,7 +63,7 @@ The server runs on static IP `192.168.1.42` with the following services:
 - Nextcloud: `https://nuage.vlp.fdn.fr`
 - Transmission: `https://dl.vlp.fdn.fr`
 - Terminal: `https://ttyd.vlp.fdn.fr`
-- Headscale: `https://hs.vlp.fdn.fr` (see [HEADSCALE.md](HEADSCALE.md) for setup)
+- Headscale: `https://hs.vlp.fdn.fr`
 
 ## 🔐 Secrets Management
 
