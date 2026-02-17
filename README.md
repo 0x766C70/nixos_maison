@@ -9,7 +9,7 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 - **Media Server**: MiniDLNA streaming to local network devices
 - **Torrent Client**: Transmission with Flood web interface
 - **Monitoring**: Prometheus with node exporter and Grafana Cloud integration
-- **Security**: fail2ban intrusion prevention for SSH brute force protection
+- **Security**: fail2ban intrusion prevention for SSH and Caddy basic auth brute force protection
 - **Automated Backups**: Scheduled Nextcloud and system backups to remote server
 - **Encrypted Storage**: LUKS-encrypted backup disk with automatic unlock
 - **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
@@ -90,23 +90,45 @@ System metrics are collected by Prometheus and forwarded to Grafana Cloud for vi
 
 ### Security (fail2ban)
 
-fail2ban protects SSH (port 1337) from brute force attacks:
+fail2ban protects SSH (port 1337) and Caddy basic auth from brute force attacks:
+
+**SSH Protection:**
 - **Ban threshold**: 5 failed attempts within 10 minutes
 - **Ban duration**: 1 hour
 - **Backend**: systemd journal (NixOS native)
+
+**Caddy Basic Auth Protection:**
+- **Ban threshold**: 3 failed attempts within 10 minutes
+- **Ban duration**: 2 hours
+- **Protected endpoints**: 
+  - `dl.vlp.fdn.fr` (Transmission web interface)
+  - `laptop.vlp.fdn.fr` (Laptop remote access)
+- **Log format**: JSON logs in `/var/log/caddy/access.log`
 
 ```bash
 # Check fail2ban status
 sudo systemctl status fail2ban
 
-# View banned IPs
+# View banned IPs for SSH
 sudo fail2ban-client status sshd
 
-# Manually ban an IP
+# View banned IPs for Caddy
+sudo fail2ban-client status caddy-auth
+
+# Manually ban an IP (for SSH)
 sudo fail2ban-client set sshd banip <IP_ADDRESS>
 
-# Manually unban an IP
+# Manually ban an IP (for Caddy)
+sudo fail2ban-client set caddy-auth banip <IP_ADDRESS>
+
+# Manually unban an IP (for SSH)
 sudo fail2ban-client set sshd unbanip <IP_ADDRESS>
+
+# Manually unban an IP (for Caddy)
+sudo fail2ban-client set caddy-auth unbanip <IP_ADDRESS>
+
+# View recent authentication failures in Caddy logs
+sudo journalctl -u caddy -n 50 | grep 401
 ```
 
 ### Updates
