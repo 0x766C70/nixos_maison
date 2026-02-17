@@ -123,19 +123,20 @@
     [Definition]
     
     # Match Nextcloud JSON logs with login failures
-    # Pattern 1: Failed login attempts - "Login failed:" message with remote address
-    # Pattern 2: Trusted domain errors - can indicate brute force attempts
     # The _groupsre variable allows flexible matching of JSON fields in any order
+    # Example log line: {"reqId":"xxx","level":2,"time":"2024-08-17T21:00:06+00:00","remoteAddr":"192.168.1.23",...,"message":"Login failed: admin (Remote IP: 192.168.1.23)"}
     _groupsre = .*?
     
-    failregex = ^\{%(_groupsre)s,?\s*"remoteAddr":"<ADDR>"%(_groupsre)s,?\s*"message":"Login failed:
-                ^\{%(_groupsre)s,?\s*"remoteAddr":"<ADDR>"%(_groupsre)s,?\s*"message":"Trusted domain error.
+    # Pattern 1: Failed login attempts - matches "Login failed:" in the message field
+    # Pattern 2: Trusted domain errors - can indicate brute force attempts on wrong domains
+    failregex = ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Login failed:
+                ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Trusted domain error\.
     
     # Ignore successful logins and other non-failure events
     ignoreregex = 
     
     # Date pattern for Nextcloud's ISO 8601 timestamp format in "time" field
     # Nextcloud logs use format: "time":"2024-02-17T19:50:51+00:00"
-    datepattern = ,?\s*"time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
+    datepattern = "time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
   '';
 }
