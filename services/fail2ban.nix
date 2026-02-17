@@ -1,7 +1,7 @@
 { config, pkgs, ... }:
 
 {
-  # fail2ban configuration for SSH and Caddy basic auth brute force prevention
+  # fail2ban configuration for SSH, Caddy basic auth, and Nextcloud brute force prevention
   services.fail2ban = {
     enable = true;
     
@@ -61,6 +61,32 @@
           bantime = "2h";
         };
       };
+      
+      # Nextcloud jail for login brute force protection
+      nextcloud = {
+        settings = {
+          # Enable the jail
+          enabled = true;
+          
+          # HTTP and HTTPS ports (Nextcloud is accessed via reverse proxy)
+          port = "http,https";
+          
+          # Custom filter for Nextcloud login failures
+          filter = "nextcloud";
+          
+          # Path to Nextcloud log file
+          logpath = "/var/lib/nextcloud/data/nextcloud.log";
+          
+          # Time window to count failures (10 minutes)
+          findtime = "10m";
+          
+          # Maximum retries before ban (5 attempts)
+          maxretry = 5;
+          
+          # Ban time for login failures (2 hours, same as Caddy)
+          bantime = "2h";
+        };
+      };
     };
   };
   
@@ -85,5 +111,32 @@
     # Caddy uses epoch time as floating point: "ts":1708197007.123456
     # %%s matches seconds, \. matches literal dot, %%f matches fractional seconds
     datepattern = {^LN-BEG}"ts":%%s\.%%f
+  '';
+  
+  # Custom fail2ban filter for Nextcloud login failures
+  environment.etc."fail2ban/filter.d/nextcloud.conf".text = ''
+    # Fail2Ban filter for Nextcloud authentication failures
+    # 
+    # Nextcloud logs authentication failures in JSON format
+    # This filter detects login failures and trusted domain errors (often used in brute force attacks)
+    
+    [Definition]
+    
+    # Match Nextcloud JSON logs with login failures
+    # The _groupsre variable allows flexible matching of JSON fields in any order
+    # Example log line: {"reqId":"xxx","level":2,"time":"2024-08-17T21:00:06+00:00","remoteAddr":"192.168.1.23",...,"message":"Login failed: admin (Remote IP: 192.168.1.23)"}
+    _groupsre = .*?
+    
+    # Pattern 1: Failed login attempts - matches "Login failed:" in the message field
+    # Pattern 2: Trusted domain errors - can indicate brute force attempts on wrong domains
+    failregex = ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Login failed:
+                ^\{%(_groupsre)s"remoteAddr"\s*:\s*"<ADDR>"%(_groupsre)s"message"\s*:\s*"Trusted domain error\.
+    
+    # Ignore successful logins and other non-failure events
+    ignoreregex = 
+    
+    # Date pattern for Nextcloud's ISO 8601 timestamp format in "time" field
+    # Nextcloud logs use format: "time":"2024-02-17T19:50:51+00:00"
+    datepattern = "time"\s*:\s*"%%Y-%%m-%%d[T ]%%H:%%M:%%S(%%z)?"
   '';
 }
