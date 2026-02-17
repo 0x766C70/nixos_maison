@@ -54,7 +54,7 @@
           # Time window to count failures (10 minutes)
           findtime = "10m";
           
-          # Maximum retries before ban (more lenient for auth: 3 attempts)
+          # Maximum retries before ban (stricter than SSH: 3 vs 5 attempts)
           maxretry = 3;
           
           # Ban time for auth failures (2 hours)
@@ -83,6 +83,6 @@
     
     # Date pattern for Caddy's Unix timestamp format in "ts" field
     # Caddy uses epoch time as floating point: "ts":1708197007.123456
-    datepattern = "ts":%%s
+    datepattern = {^LN-BEG}"ts":%%s
   '';
 }
