@@ -81,7 +81,7 @@
   # Service configurations
   services.openssh = {
     enable = true;
-    ports = [ 1337 ];
+    ports = [ 1337 8022 8023 8024 ];
     settings = {
       PasswordAuthentication = false;
       AllowUsers = [ "vlp" ];

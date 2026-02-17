@@ -25,8 +25,8 @@
           # Use systemd backend (NixOS uses systemd journal for SSH logs, not /var/log/auth.log)
           backend = "systemd";
           
-          # SSH port to monitor (custom port 1337 from configuration.nix)
-          port = "1337";
+          # SSH ports to monitor (custom ports from configuration.nix)
+          port = "1337,8022,8023,8024";
           
           # Filter to use for detecting failed SSH attempts
           filter = "sshd";
