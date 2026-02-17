@@ -104,13 +104,21 @@
   
   # Configure email notifications using msmtp
   # Sends alerts when IPs are banned or unbanned
-  environment.etc."fail2ban/action.d/mail-mwl.local".text = ''
-    [Definition]
-    actionstart = printf "From: maison@vlp.fdn.fr\nTo: monitoring@vlp.fdn.fr\nSubject: [fail2ban] <name> jail started on $(hostname)\n\nThe fail2ban <name> jail has been started on $(hostname)." | ${pkgs.msmtp}/bin/msmtp monitoring@vlp.fdn.fr
-    actionstop = printf "From: maison@vlp.fdn.fr\nTo: monitoring@vlp.fdn.fr\nSubject: [fail2ban] <name> jail stopped on $(hostname)\n\nThe fail2ban <name> jail has been stopped on $(hostname)." | ${pkgs.msmtp}/bin/msmtp monitoring@vlp.fdn.fr
-    actionban = printf "From: maison@vlp.fdn.fr\nTo: monitoring@vlp.fdn.fr\nSubject: [fail2ban] <name>: IP <ip> banned\n\nThe IP <ip> has been banned by fail2ban <name> jail on $(hostname) after <failures> failed attempts.\n\nRegards,\nfail2ban" | ${pkgs.msmtp}/bin/msmtp monitoring@vlp.fdn.fr
-    actionunban = printf "From: maison@vlp.fdn.fr\nTo: monitoring@vlp.fdn.fr\nSubject: [fail2ban] <name>: IP <ip> unbanned\n\nThe IP <ip> has been unbanned from fail2ban <name> jail on $(hostname).\n\nRegards,\nfail2ban" | ${pkgs.msmtp}/bin/msmtp monitoring@vlp.fdn.fr
-  '';
+  # Using variables to avoid duplication and improve maintainability
+  environment.etc."fail2ban/action.d/mail-mwl.local".text = 
+    let
+      fromAddr = "maison@vlp.fdn.fr";
+      toAddr = "monitoring@vlp.fdn.fr";
+      makeEmail = subject: body: ''
+        printf "From: ${fromAddr}\nTo: ${toAddr}\nSubject: ${subject}\n\n${body}" | ${pkgs.msmtp}/bin/msmtp ${toAddr}
+      '';
+    in ''
+      [Definition]
+      actionstart = ${makeEmail "[fail2ban] <name> jail started on $(hostname)" "The fail2ban <name> jail has been started on $(hostname)."}
+      actionstop = ${makeEmail "[fail2ban] <name> jail stopped on $(hostname)" "The fail2ban <name> jail has been stopped on $(hostname)."}
+      actionban = ${makeEmail "[fail2ban] <name>: IP <ip> banned" "The IP <ip> has been banned by fail2ban <name> jail on $(hostname) after <failures> failed attempts.\n\nRegards,\nfail2ban"}
+      actionunban = ${makeEmail "[fail2ban] <name>: IP <ip> unbanned" "The IP <ip> has been unbanned from fail2ban <name> jail on $(hostname).\n\nRegards,\nfail2ban"}
+    '';
   
   # Ensure fail2ban package is available for CLI management
   # Commands: fail2ban-client status, fail2ban-client status <jail>
