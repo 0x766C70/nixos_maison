@@ -49,7 +49,7 @@
           filter = "caddy-auth";
           
           # Path to Caddy access log
-          logpath = "/var/log/caddy/access-dl.vlp.fdn.fr.log";
+          logpath = "/var/log/caddy/access.log";
           
           # Time window to count failures (10 minutes)
           findtime = "10m";
