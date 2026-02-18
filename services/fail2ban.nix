@@ -126,9 +126,10 @@
     [Definition]
     
     # Match JSON logs with 401 Unauthorized status (failed basic auth)
-    # Caddy JSON logs: "request":{"remote_ip":"x.x.x.x",...} followed by "status":401
-    # Note: remote_ip appears before status in the log line
-    failregex = "remote_ip":\s*"<ADDR>".*"status":\s*401
+    # Caddy JSON logs have this structure: {"request":{"remote_ip":"x.x.x.x",...},...,"status":401,...}
+    # The remote_ip field is nested inside the request object, not at the top level
+    # This regex uses non-greedy matching to handle any JSON content (including nested objects) between "request" and "remote_ip"
+    failregex = "request":\s*\{.*?"remote_ip":\s*"<ADDR>".*"status":\s*401
     
     # Ignore successful authentications (status 200, 301, 302, etc.)
     ignoreregex = "status":\s*[23]\d{2}
