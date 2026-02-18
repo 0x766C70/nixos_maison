@@ -6,15 +6,13 @@
   services.caddy = {
     enable = true;
     
-    # Global logging configuration for fail2ban integration
-    globalConfig = ''
-      log {
-        output file /var/log/caddy/access.log
-        format json
-      }
-    '';
+    # No global logging - each virtualhost with auth has its own log file for fail2ban
     
     virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
+      log {
+        output file /var/log/caddy/access-dl.vlp.fdn.fr.log
+        format json
+      }
       basic_auth {
         mlc {file.${config.age.secrets.caddy_mlc.path}}
       }
@@ -29,6 +27,10 @@
       }
     '';
     virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
+      log {
+        output file /var/log/caddy/access-laptop.vlp.fdn.fr.log
+        format json
+      }
       basic_auth / {
         vlp {file.${config.age.secrets.caddy_vlp.path}}
       }
