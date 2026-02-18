@@ -36,7 +36,7 @@
         };
       };
       
-      # Caddy basic auth jail
+      # Caddy basic auth jail for dl.vlp.fdn.fr
       caddy-auth = {
         settings = {
           # Enable the jail
@@ -48,8 +48,34 @@
           # Custom filter for Caddy basic auth failures
           filter = "caddy-auth";
           
-          # Path to Caddy access log
+          # Path to Caddy access log for dl.vlp.fdn.fr
           logpath = "/var/log/caddy/access-dl.vlp.fdn.fr.log";
+          
+          # Time window to count failures (10 minutes)
+          findtime = "10m";
+          
+          # Maximum retries before ban (stricter than SSH: 3 vs 5 attempts)
+          maxretry = 3;
+          
+          # Ban time for auth failures (2 hours)
+          bantime = "2h";
+        };
+      };
+      
+      # Caddy basic auth jail for laptop.vlp.fdn.fr
+      caddy-auth-laptop = {
+        settings = {
+          # Enable the jail
+          enabled = true;
+          
+          # HTTP and HTTPS ports
+          port = "http,https";
+          
+          # Custom filter for Caddy basic auth failures
+          filter = "caddy-auth";
+          
+          # Path to Caddy access log for laptop.vlp.fdn.fr
+          logpath = "/var/log/caddy/access-laptop.vlp.fdn.fr.log";
           
           # Time window to count failures (10 minutes)
           findtime = "10m";
