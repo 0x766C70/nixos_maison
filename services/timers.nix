@@ -13,8 +13,6 @@
   systemd.services."backup-failure-notification@" = {
     description = "Send email notification on backup failure for %i";
     script = ''
-            # Get the failed service name from the instance parameter
-            FAILED_SERVICE="%i"
             MONITORING_EMAIL="monitoring@vlp.fdn.fr"
       
             echo "Sending backup failure notification for $FAILED_SERVICE at $(date)"
@@ -46,6 +44,7 @@
     serviceConfig = {
       Type = "oneshot";
       User = "root";
+      Environment = "FAILED_SERVICE=%i";
     };
   };
 
