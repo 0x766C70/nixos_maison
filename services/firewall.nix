@@ -10,8 +10,8 @@
     allowedTCPPorts = [ 80 443 1337 8022 8023 8024 8085];
   };
   # 80 - 443 Caddy/nextcloud
-  # 8082 - ssh to webserver
-  # 8083 - ssh to new-dl
+  # 8022 - ssh to webserver
+  # 8023 - ssh to new-dl
   # 8024 - ssh to vlaptop
   # 8085 - headscale
 
@@ -26,11 +26,11 @@
         proto = "tcp";
         destination = "192.168.101.11:22";
       }
-      # transmission ssh access
+      # new-dl ssh access
       {
         sourcePort = 8023;
         proto = "tcp";
-        destination = "192.168.101.12:22";
+        destination = "192.168.101.22:22";
       }
       # vlaptop ssh access
       {
