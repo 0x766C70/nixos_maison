@@ -119,7 +119,9 @@
   # Custom fail2ban filter for Caddy basic auth failures
   environment.etc."fail2ban/filter.d/dl-caddy-auth.conf".text = ''
     [Definition]
-    failregex = ^.*"remote_ip":\s*"<ADDR>".*"status":\s*(401|403).*$
+    failregex = "request":\s*\{.*?"remote_ip":\s*"<ADDR>".*"status":\s*401
+    ignoreregex = "status":\s*[23]\d{2}
+    datepattern = {^LN-BEG}"ts":%%s\.%%f
   '';
   
   # Custom fail2ban filter for Caddy basic auth failures
