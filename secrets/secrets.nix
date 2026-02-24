@@ -8,6 +8,7 @@ in
   "mail.age".publicKeys = [ user1 user2 ];
   "caddy_mlc.age".publicKeys = [ user1 ];
   "caddy_vlp.age".publicKeys = [ user1 ];
+  "dl_caddy.age".publicKeys = [ user1 ];
   "luks_sdb1.age".publicKeys = [ user1 ];
 }
 

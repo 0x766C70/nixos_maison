@@ -88,6 +88,32 @@
         };
       };
       
+      # Caddy basic auth jail for new-dl.vlp.fdn.fr
+      caddy-auth-new-dl = {
+        settings = {
+          # Enable the jail
+          enabled = true;
+          
+          # HTTP and HTTPS ports
+          port = "http,https";
+          
+          # Custom filter for Caddy basic auth failures
+          filter = "caddy-auth";
+          
+          # Path to Caddy access log for new-dl.vlp.fdn.fr
+          logpath = "/var/log/caddy/access-new-dl.vlp.fdn.fr.log";
+          
+          # Time window to count failures (10 minutes)
+          findtime = "10m";
+          
+          # Maximum retries before ban (stricter than SSH: 3 vs 5 attempts)
+          maxretry = 3;
+          
+          # Ban time for auth failures (2 hours)
+          bantime = "2h";
+        };
+      };
+      
       # Nextcloud jail for login brute force protection
       nextcloud = {
         settings = {

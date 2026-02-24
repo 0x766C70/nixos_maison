@@ -18,6 +18,16 @@
       }
       reverse_proxy http://localhost:9091
     '';
+    virtualHosts."new-dl.vlp.fdn.fr".extraConfig = ''
+      log {
+        output file /var/log/caddy/access-new-dl.vlp.fdn.fr.log
+        format json
+      }
+      basic_auth {
+        dl {file.${config.age.secrets.dl_caddy.path}}
+      }
+      reverse_proxy http://localhost:9091
+    '';
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080 {
         # Pass real client IP to Nextcloud

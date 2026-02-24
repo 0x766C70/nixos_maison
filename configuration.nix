@@ -121,6 +121,11 @@
     owner = "caddy";
     group = "caddy";
   };
+  age.secrets.dl_caddy = {
+    file = ./secrets/dl_caddy.age;
+    owner = "caddy";
+    group = "caddy";
+  };
   age.secrets.mail = {
     file = ./secrets/mail.age;
   };
