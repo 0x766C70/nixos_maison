@@ -37,7 +37,7 @@
       };
       
       # Caddy basic auth jail for dl.vlp.fdn.fr
-      caddy-auth = {
+      dl-caddy-auth = {
         settings = {
           # Enable the jail
           enabled = true;
@@ -46,7 +46,7 @@
           port = "http,https";
           
           # Custom filter for Caddy basic auth failures
-          filter = "caddy-auth";
+          filter = "dl-caddy-auth";
           
           # Path to Caddy access log for dl.vlp.fdn.fr
           logpath = "/var/log/caddy/access-dl.vlp.fdn.fr.log";
@@ -63,7 +63,7 @@
       };
       
       # Caddy basic auth jail for laptop.vlp.fdn.fr
-      caddy-auth-laptop = {
+      laptop-caddy-auth = {
         settings = {
           # Enable the jail
           enabled = true;
@@ -72,7 +72,7 @@
           port = "http,https";
           
           # Custom filter for Caddy basic auth failures
-          filter = "caddy-auth";
+          filter = "laptop-caddy-auth";
           
           # Path to Caddy access log for laptop.vlp.fdn.fr
           logpath = "/var/log/caddy/access-laptop.vlp.fdn.fr.log";
@@ -117,13 +117,19 @@
   };
   
   # Custom fail2ban filter for Caddy basic auth failures
-  environment.etc."fail2ban/filter.d/caddy-auth.conf".text = ''
+  environment.etc."fail2ban/filter.d/dl-caddy-auth.conf".text = ''
+    [Definition]
+    failregex = ^.*"remote_ip":\s*"<ADDR>".*"status":\s*(401|403).*$
+  '';
+  
+  # Custom fail2ban filter for Caddy basic auth failures
+  environment.etc."fail2ban/filter.d/laptop-caddy-auth.conf".text = ''
     [Definition]
     failregex = "request":\s*\{.*?"remote_ip":\s*"<ADDR>".*"status":\s*401
     ignoreregex = "status":\s*[23]\d{2}
     datepattern = {^LN-BEG}"ts":%%s\.%%f
   '';
-  
+
   # Custom fail2ban filter for Nextcloud login failures
   environment.etc."fail2ban/filter.d/nextcloud.conf".text = ''
     [Definition]
