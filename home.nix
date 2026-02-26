@@ -17,13 +17,15 @@
 
   programs.git = {
     enable = true;
-    userName = "vlp";
-    userEmail = "vlp@fdn.fr";
     signing = {
       key = "11E97E99EFF47CD9EA7445D4AB8B02134A7467D2";
       signByDefault = true;
     };
-    extraConfig = {
+    settings = {
+      user = {
+        name = "vlp";
+        email = "vlp@fdn.fr";
+      };
       core = {
         editor = "vim";
       };
