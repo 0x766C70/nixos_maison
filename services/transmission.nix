@@ -42,6 +42,10 @@ in
       BindPaths = transmissionWritePaths;
       # Explicitly allow writes to the above paths (overrides ProtectSystem = "strict").
       ReadWritePaths = transmissionWritePaths;
+      # The upstream transmission module sets RootDirectory = "/run/transmission".
+      # The confinement module also sets RootDirectory = "/run/confinement/transmission".
+      # Both conflict at equal priority, so we force the confinement path here.
+      RootDirectory = lib.mkForce "/run/confinement/transmission";
       # The upstream transmission module sets RootDirectoryStartOnly = true so that only
       # ExecStart runs inside its chroot. Confinement.enable is incompatible with that
       # setting (bind-mounts can't be restricted to ExecStart alone), so we override it
