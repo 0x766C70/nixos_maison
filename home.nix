@@ -63,6 +63,7 @@
     '';
     shellAliases = {
       fr = "sudo nixos-rebuild switch --flake /home/vlp/nixos_maison";
+      frd = "sudo nixos-rebuild dry-activate --flake /home/vlp/nixos_maison";
       scanit = "sudo scanimage --format=png --resolution=300 --mode Color -p > /home/vlp/partages/scan.png";
       laptop = "ssh 192.168.101.13";
     };
