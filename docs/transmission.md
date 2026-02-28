@@ -460,6 +460,13 @@ systemd démarre transmission.service
 | ReadWritePaths | Exceptions d'écriture explicites | `ReadWritePaths` |
 | BindPaths | Accès aux données réelles dans le namespace | `BindPaths` |
 | ExecStartPre avec `+` | Préparation privilegiée hors confinement | `ExecStartPre = "+" + …` |
+| RestrictAddressFamilies | Limite les familles de sockets (pas de raw sockets) | `RestrictAddressFamilies` |
+| RestrictNamespaces | Empêche la création de namespaces noyau | `RestrictNamespaces` |
+| LockPersonality | Empêche la modification du domaine d'exécution | `LockPersonality` |
+| ProtectKernelModules | Interdit le chargement de modules noyau | `ProtectKernelModules` |
+| ProtectKernelTunables | Interdit la modification des paramètres noyau | `ProtectKernelTunables` |
+
+Pour une analyse comparative complète (confinement systemd vs conteneur Incus), voir [`docs/transmission-security-analysis.md`](./transmission-security-analysis.md).
 
 ---
 
