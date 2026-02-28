@@ -49,6 +49,17 @@ in
       ProtectSystem = "strict";
       # Private /tmp, isolated from other services.
       PrivateTmp = true;
+      # Restrict network address families to what BitTorrent and internal IPC actually need.
+      # Blocks raw sockets (AF_PACKET, AF_NETLINK…) that could be used for network attacks.
+      RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" ];
+      # Prevent the service from creating new kernel namespaces (closes namespace-escape paths).
+      RestrictNamespaces = true;
+      # Prevent modification of the execution domain / personality (blocks some ABI tricks).
+      LockPersonality = true;
+      # Prevent loading of kernel modules from within the service.
+      ProtectKernelModules = true;
+      # Prevent modification of kernel tunables (/proc/sys, /sys).
+      ProtectKernelTunables = true;
       # Bind the required data directories into the private namespace (confinement requires this).
       BindPaths = transmissionWritePaths;
       # Explicitly allow writes to the above paths (overrides ProtectSystem = "strict").
