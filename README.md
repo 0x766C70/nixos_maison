@@ -164,6 +164,35 @@ sudo grep '"status":401' /var/log/caddy/access-laptop.vlp.fdn.fr.log | tail -n 5
 sudo grep '"Login failed:' /var/lib/nextcloud/data/nextcloud.log | tail -n 50
 ```
 
+### Transmission — Pruning old finished torrents
+
+The script `bin/transmission-prune-finished-30d.sh` removes finished torrents
+that were added more than 30 days ago and deletes their local data.
+
+```bash
+# Dry run (preview only, no deletions)
+DRY_RUN=1 ./bin/transmission-prune-finished-30d.sh
+
+# Actually prune torrents older than 30 days
+./bin/transmission-prune-finished-30d.sh
+
+# Custom threshold (e.g. 60 days) or non-default host/port
+THRESHOLD_DAYS=60 TR_HOST=192.168.1.42 TR_PORT=9091 ./bin/transmission-prune-finished-30d.sh
+
+# With authentication
+TR_AUTH=user:pass ./bin/transmission-prune-finished-30d.sh
+```
+
+Environment variables:
+
+| Variable         | Default       | Description                                      |
+|------------------|---------------|--------------------------------------------------|
+| `TR_HOST`        | `127.0.0.1`   | Transmission RPC host                            |
+| `TR_PORT`        | `9091`        | Transmission RPC port                            |
+| `THRESHOLD_DAYS` | `30`          | Minimum age in days before a torrent is pruned   |
+| `DRY_RUN`        | `0`           | Set to `1` to preview deletions without running  |
+| `TR_AUTH`        | *(unset)*     | `user:pass` passed to `--auth` if set            |
+
 ### Updates
 
 ```bash
