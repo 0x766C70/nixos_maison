@@ -109,6 +109,13 @@
     script = ''
       set -e  # Exit immediately on error
 
+      # Make SSH_AUTH_SOCK available so ssh/rsync can reach the GPG agent that
+      # holds the YubiKey-backed SSH key.  This mirrors what bashrcExtra does
+      # for interactive sessions; without it, systemd services never have this
+      # variable set and publickey authentication fails.
+      export SSH_AUTH_SOCK=$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)
+      ${pkgs.gnupg}/bin/gpgconf --launch gpg-agent
+
       echo "Starting remote Nextcloud backup at $(date)"
       
       # azul is inside the tailnet and cannot be reached directly from maison
