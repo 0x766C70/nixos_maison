@@ -214,6 +214,32 @@
 
 
   # ===========================
+  # Transmission prune finished torrents (30d)
+  # ===========================
+
+  # Daily prune of finished Transmission torrents older than 30 days, at 6 AM
+  systemd.timers."transmission-prune-finished-30d" = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*-*-* 6:00:00";
+      Persistent = true; # Run on boot if missed
+      Unit = "transmission-prune-finished-30d.service";
+    };
+  };
+
+  systemd.services."transmission-prune-finished-30d" = {
+    description = "Prune finished Transmission torrents older than 30 days";
+    path = [ pkgs.transmission_4 ];
+    script = ''
+      ${pkgs.bash}/bin/bash ${../bin/transmission-prune-finished-30d.sh}
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+    };
+  };
+
+  # ===========================
   # NC preview generator
   # ===========================
 
