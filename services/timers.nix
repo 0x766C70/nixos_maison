@@ -144,7 +144,7 @@
       # is not a practical concern.
       ${pkgs.rsync}/bin/rsync -a --delete \
         -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new" \
-        /root/backup/nextcloud/ \
+        /home/vlp/backup/nextcloud/ \
         vlp@127.0.0.1:/home/vlp/backup_maison/nextcloud/
       
       echo "Remote Nextcloud backup completed successfully at $(date)"
