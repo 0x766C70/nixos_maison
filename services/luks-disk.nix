@@ -80,8 +80,8 @@
 
     script = ''
       set -e
-      chown vlp:vlp /home/vlp/backup
-      chmod 0750 /home/vlp/backup
+      chown vlp:users /home/vlp/backup -R
+      chmod 0750 /home/vlp/backup -R
     '';
   };
 }
