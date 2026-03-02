@@ -44,7 +44,12 @@ Internet
    ├── ProtectSystem=strict        ← Système de fichiers en lecture seule
    ├── PrivateTmp                  ← /tmp isolé
    ├── BindPaths                   ← Accès limité à /var/lib/transmission + /mnt/downloads
-   └── ReadWritePaths              ← Exceptions d'écriture explicites
+   ├── ReadWritePaths              ← Exceptions d'écriture explicites
+   ├── RestrictAddressFamilies     ← Seulement AF_INET, AF_INET6, AF_UNIX
+   ├── RestrictNamespaces          ← Prévention des évasions par namespace noyau
+   ├── LockPersonality             ← Blocage des tricks d'ABI/personalité
+   ├── ProtectKernelModules        ← Interdit le chargement de modules noyau
+   └── ProtectKernelTunables       ← /proc/sys et /sys en lecture seule
 ```
 
 #### Couche 1 — Réseau : pas d'exposition directe
@@ -92,6 +97,34 @@ ReadWritePaths = [ "/var/lib/transmission" "/mnt/downloads" ];
 
 Seuls deux répertoires sont modifiables depuis l'intérieur du confinement.
 
+#### Couche 4 — Durcissement noyau (directives systemd avancées)
+
+Ajoutées dans la même `serviceConfig`, ces directives réduisent la surface d'attaque au niveau noyau :
+
+```nix
+# Limite les familles d'adresses réseau : BitTorrent + IPC systemd uniquement.
+# AF_PACKET, AF_NETLINK et autres sont bloqués — ferme des vecteurs d'attaque réseau bas niveau.
+RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" ];
+
+# Interdit au service de créer de nouveaux namespaces noyau.
+# Ferme les chemins d'évasion de sandbox via cloning de namespaces.
+RestrictNamespaces = true;
+
+# Empêche la modification de la personalité d'exécution (personality syscall).
+# Bloque certaines techniques de contournement de l'ASLR basées sur les ABI 32/64-bit.
+LockPersonality = true;
+
+# Interdit le chargement de modules noyau depuis le service.
+# Un attaquant qui obtient RCE ne peut pas charger un rootkit via insmod.
+ProtectKernelModules = true;
+
+# Met /proc/sys et /sys en lecture seule depuis le service.
+# Empêche la modification des paramètres noyau (ex : désactiver ASLR via /proc/sys/kernel/randomize_va_space).
+ProtectKernelTunables = true;
+```
+
+Ces cinq directives n'ajoutent aucune complexité opérationnelle et durcissent significativement le périmètre d'attaque noyau.
+
 ### Tableau des forces et faiblesses
 
 | # | Force | Détail |
@@ -102,27 +135,33 @@ Seuls deux répertoires sont modifiables depuis l'intérieur du confinement.
 | ✅ | Filesystem isolé | Namespace mnt, ProtectSystem=strict |
 | ✅ | /tmp privé | PrivateTmp — pas de fuite inter-services via /tmp |
 | ✅ | Écriture limitée | Seulement /var/lib/transmission et /mnt/downloads |
+| ✅ | Familles réseau restreintes | RestrictAddressFamilies — bloque AF_PACKET, AF_NETLINK et les raw sockets |
+| ✅ | Namespaces noyau verrouillés | RestrictNamespaces — prévient les évasions de sandbox par cloning de namespaces |
+| ✅ | Personalité fixée | LockPersonality — bloque les tricks ABI/ASLR via personality syscall |
+| ✅ | Modules noyau protégés | ProtectKernelModules — interdit le chargement de modules depuis le service |
+| ✅ | Tunables noyau protégés | ProtectKernelTunables — /proc/sys et /sys en lecture seule |
 | ✅ | Intégration NixOS native | Déclaratif, reproductible, facile à auditer |
 | ✅ | Overhead minimal | Pas de VM, pas de processus supplémentaire |
 
 | # | Faiblesse | Détail |
 |---|-----------|--------|
-| ❌ | Noyau partagé | Le confinement repose sur les namespaces Linux — une faille dans le noyau peut en sortir |
-| ❌ | Réseau non isolé | Transmission partage le réseau de l'hôte — il peut contacter localhost:8080 (Nextcloud), localhost:8085 (Headscale), etc. |
+| ❌ | Noyau partagé | Le confinement repose sur les namespaces Linux — une faille dans le noyau peut en sortir (atténué par RestrictNamespaces, LockPersonality, ProtectKernelModules, ProtectKernelTunables) |
+| ❌ | Réseau non isolé | Transmission partage le réseau de l'hôte — il peut contacter localhost:8080 (Nextcloud), localhost:8085 (Headscale), etc. (raw sockets bloqués par RestrictAddressFamilies, mais TCP/UDP vers localhost reste possible) |
 | ❌ | Pas de UID remapping | Le processus tourne en tant qu'utilisateur `transmission` sur le vrai système — si une faille d'escalade de privilèges existe, le périmètre est le UID `transmission` |
 | ❌ | /mnt/downloads visible | Le répertoire NFS est dans le confinement — un attaquant peut lire/modifier tous les fichiers téléchargés |
-| ❌ | Pas d'isolation réseau | `PrivateNetwork = true` n'est pas activé — Transmission a accès à l'ensemble du réseau local (192.168.1.0/24) |
 
 ### Note globale — Option 1
 
 ```
 ╔══════════════════════════════════════════════════════════╗
-║  Confinement systemd — Note : B+ (7.5 / 10)             ║
+║  Confinement systemd — Note : A- (8.5 / 10)             ║
 ║                                                          ║
 ║  Excellent pour un serveur domestique.                   ║
-║  Résiste bien aux menaces courantes.                     ║
-║  Vulnérable à une exploitation noyau ou à un            ║
-║  mouvement latéral réseau en cas de compromission.       ║
+║  Résiste très bien aux menaces courantes.                ║
+║  Durcissement noyau complet (RestrictNamespaces,         ║
+║  LockPersonality, ProtectKernelModules, etc.).           ║
+║  Vulnérable principalement au mouvement latéral          ║
+║  réseau TCP/UDP en cas de compromission.                 ║
 ╚══════════════════════════════════════════════════════════╝
 ```
 
@@ -260,7 +299,7 @@ Chaque option a ses implications opérationnelles.
 
 ```
 ╔══════════════════════════════════════════════════════════╗
-║  Conteneur Incus — Note : A- (8.5 / 10)                 ║
+║  Conteneur Incus — Note : A (9 / 10)                    ║
 ║                                                          ║
 ║  Isolation nettement supérieure, notamment réseau.       ║
 ║  Blast radius fortement réduit en cas de compromission.  ║
@@ -286,7 +325,7 @@ Chaque option a ses implications opérationnelles.
 | **Monitoring centralisé** | ✅ journal hôte | ❌ Logs dans le conteneur |
 | **Reproductibilité NixOS** | ✅ Natif | ⚠️ Config supplémentaire |
 | **Overhead performance** | ✅ Négligeable | ⚠️ Léger |
-| **Grade** | **B+ (7.5/10)** | **A- (8.5/10)** |
+| **Grade** | **A- (8.5/10)** | **A (9/10)** |
 
 ---
 
@@ -333,17 +372,17 @@ Passe à Incus si l'un de ces critères s'applique :
 │                                                                         │
 │  ► Garde le confinement systemd actuel. Il est correctement calibré.    │
 │                                                                         │
-│  ► Ajoute RestrictAddressFamilies pour limiter les syscalls réseau :    │
+│  ► Les directives de durcissement noyau sont déjà en place :            │
+│    RestrictAddressFamilies, RestrictNamespaces, LockPersonality,        │
+│    ProtectKernelModules, ProtectKernelTunables.                         │
 │                                                                         │
-│    RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" ];        │
-│                                                                         │
-│  ► Si tu veux monter en grade (A vers A+) sans trop de complexité,      │
+│  ► Si tu veux monter en grade (A- vers A) sans trop de complexité,      │
 │    envisage un conteneur Incus une fois que la gestion NFS/LUKS dans    │
 │    un conteneur est clarifiée.                                          │
 │                                                                         │
-│  Grade actuel : B+ (7.5/10) — Très bien pour du domestique.            │
-│  Grade Incus  : A- (8.5/10) — Mieux, mais au prix d'une complexité     │
-│                               opérationnelle que tu devras assumer.     │
+│  Grade actuel : A- (8.5/10) — Très bien pour du domestique.            │
+│  Grade Incus  : A (9/10) — Mieux, mais au prix d'une complexité        │
+│                            opérationnelle que tu devras assumer.        │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -351,13 +390,13 @@ Passe à Incus si l'un de ces critères s'applique :
 
 ---
 
-## Amélioration rapide recommandée
+## Directives de durcissement — déjà en place
 
-Si tu veux passer de B+ à A- **sans** conteneur Incus, voici le seul ajout pertinent dans `services/transmission.nix` :
+Ces cinq directives ont été ajoutées à `services/transmission.nix` (PR #42). Elles sont maintenant actives dans la configuration :
 
 ```nix
 systemd.services.transmission.serviceConfig = {
-  # … (configuration existante) …
+  # … (configuration de confinement existante) …
 
   # Limite les familles d'adresses réseau autorisées.
   # AF_INET/AF_INET6 : indispensables pour BitTorrent.
@@ -379,7 +418,7 @@ systemd.services.transmission.serviceConfig = {
 };
 ```
 
-Ces directives n'ajoutent aucune complexité opérationnelle et réduisent significativement la surface d'attaque noyau.
+Ces directives n'ajoutent aucune complexité opérationnelle et réduisent significativement la surface d'attaque noyau. Elles sont responsables du passage de la note B+ (7.5/10) à A- (8.5/10) pour le confinement systemd.
 
 ---
 
