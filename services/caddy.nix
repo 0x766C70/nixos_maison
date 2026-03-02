@@ -10,7 +10,11 @@
     
     virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
       log {
-        output file /var/log/caddy/access-dl.vlp.fdn.fr.log
+        output file /var/log/caddy/access-dl.vlp.fdn.fr.log {
+        	roll_size 10MiB    # Rotate after 10MB
+        	roll_keep 5       # Keep 5 rotated files
+        	roll_keep_for 720h # Keep for 30 days (720h)
+	}
         format json
       }
       basic_auth {

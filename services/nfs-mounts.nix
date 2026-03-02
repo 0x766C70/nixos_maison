@@ -13,7 +13,7 @@
     "d /mnt/movies 0755 vlp vlp - -"
     "d /mnt/tvshows 0755 vlp vlp - -"
     "d /mnt/downloads 0775 vlp vlp - -"
-    "d /root/backup 0750 root root - -"
+    "d /home/vlp/backup 0750 vlp vlp - -"
     "d /home/vlp/partages 0750 vlp vlp - -"
   ];
 

@@ -3,7 +3,7 @@
 {
   # Create mount point for the LUKS encrypted disk
   systemd.tmpfiles.rules = [
-    "d /root/backup 0750 root root - -"
+    "d /home/vlp/backup 0750 vlp vlp - -"
   ];
 
   # Systemd service to unlock LUKS disk at boot
@@ -52,7 +52,7 @@
   };
 
   # Mount the unlocked LUKS device
-  fileSystems."/root/backup" = {
+  fileSystems."/home/vlp/backup" = {
     device = "/dev/mapper/luks-sdb1";
     fsType = "ext4";
     # Use nofail to allow boot to continue if disk is not available
