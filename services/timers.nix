@@ -106,14 +106,36 @@
   systemd.services."remote_backup_nc" = {
     description = "Remote backup of Nextcloud data via reverse SSH tunnel";
     path = [ pkgs.openssh pkgs.gnupg ];
+    environment = {
+      # Set DEBUG=1 to enable verbose output for troubleshooting:
+      #   systemctl set-environment DEBUG=1
+      #   systemctl start remote_backup_nc.service
+      #   journalctl -u remote_backup_nc.service -f
+      # Reset afterwards with: systemctl unset-environment DEBUG
+      DEBUG = "0";
+    };
     script = ''
       set -e  # Exit immediately on error
+
+      # Debug mode: print every command before executing and show diagnostics.
+      if [ "''${DEBUG:-0}" = "1" ]; then
+        set -x
+      fi
 
       # Export the GPG agent SSH socket so that SSH can authenticate using the
       # YubiKey-backed key.  In interactive sessions this is done by .bashrc, but
       # systemd services do not source .bashrc, so we must set it here explicitly.
       export SSH_AUTH_SOCK=$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)
       ${pkgs.gnupg}/bin/gpgconf --launch gpg-agent
+
+      # In debug mode, dump agent and key info so we can confirm auth is wired up.
+      if [ "''${DEBUG:-0}" = "1" ]; then
+        echo "DEBUG: SSH_AUTH_SOCK=$SSH_AUTH_SOCK"
+        echo "DEBUG: GPG agent socket:"
+        ls -la "$SSH_AUTH_SOCK" 2>&1 || echo "DEBUG: socket file not found"
+        echo "DEBUG: Keys loaded in SSH agent:"
+        ${pkgs.openssh}/bin/ssh-add -l 2>&1 || true
+      fi
 
       echo "Starting remote Nextcloud backup at $(date)"
       
@@ -131,12 +153,25 @@
       # Verify the reverse tunnel is active before attempting the backup.
       # Use ssh in BatchMode so it exits immediately without prompting:
       # exit code 0 = tunnel up + auth works; non-zero = tunnel down or no key.
+      # In debug mode pass -v so the full SSH handshake/auth trace appears in the
+      # journal; otherwise suppress stderr noise from a plain "tunnel not up" case.
+      # Arrays avoid empty-string argument issues when the flag is not needed.
+      SSH_DEBUG_FLAGS=()
+      RSYNC_DEBUG_FLAGS=()
+      SSH_TRANSPORT_VERBOSE=""
+      if [ "''${DEBUG:-0}" = "1" ]; then
+        SSH_DEBUG_FLAGS=(-v)
+        RSYNC_DEBUG_FLAGS=(-v)
+        SSH_TRANSPORT_VERBOSE=" -v"
+      fi
+
       if ! ${pkgs.openssh}/bin/ssh \
+           "''${SSH_DEBUG_FLAGS[@]}" \
            -p 2222 \
            -o ConnectTimeout=5 \
            -o BatchMode=yes \
            -o StrictHostKeyChecking=accept-new \
-           vlp@127.0.0.1 exit 2>/dev/null; then
+           vlp@127.0.0.1 exit 2>&1; then
         echo "ERROR: Reverse SSH tunnel from azul is not active on localhost:2222"
         echo "Ensure azul is running: autossh -M 0 -N -R 127.0.0.1:2222:localhost:22 -p 1337 vlp@hs.vlp.fdn.fr"
         exit 1
@@ -148,8 +183,9 @@
       # StrictHostKeyChecking=accept-new is acceptable here: the connection is
       # to 127.0.0.1 over the already-authenticated reverse tunnel, so MITM
       # is not a practical concern.
-      ${pkgs.rsync}/bin/rsync -a --delete \
-        -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new" \
+      # In debug mode, add -v to rsync and to the inner SSH transport.
+      ${pkgs.rsync}/bin/rsync -a --delete "''${RSYNC_DEBUG_FLAGS[@]}" \
+        -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new$SSH_TRANSPORT_VERBOSE" \
         /home/vlp/backup/nextcloud/ \
         vlp@127.0.0.1:/home/vlp/backup_maison/nextcloud/
       
