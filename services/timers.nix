@@ -87,7 +87,7 @@
     '';
     serviceConfig = {
       Type = "oneshot";
-      User = "root";
+      User = "vlp";
     };
     # Send email notification on failure
     onFailure = [ "backup-failure-notification@%n.service" ];
@@ -151,7 +151,7 @@
     '';
     serviceConfig = {
       Type = "oneshot";
-      User = "root";
+      User = "vlp";
     };
     # Send email notification on failure
     onFailure = [ "backup-failure-notification@%n.service" ];
