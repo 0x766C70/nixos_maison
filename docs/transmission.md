@@ -261,6 +261,54 @@ Crée un `/tmp` privé pour ce service, isolé du `/tmp` global du système. Deu
 ---
 
 ```nix
+  RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_UNIX" ];
+```
+
+Dresse une **liste blanche des familles d'adresses réseau** que le service est autorisé à utiliser. Seules trois familles sont autorisées :
+
+- `AF_INET` : sockets IPv4 — indispensables pour BitTorrent et le RPC
+- `AF_INET6` : sockets IPv6 — idem
+- `AF_UNIX` : sockets UNIX locaux — nécessaires pour certaines communications internes systemd
+
+Tout le reste est bloqué : `AF_PACKET` (sockets bruts permettant d'injecter des trames réseau), `AF_NETLINK` (communication directe avec le noyau), `AF_BLUETOOTH`, etc. Un attaquant ayant compromis le processus Transmission ne peut pas utiliser ces familles pour lancer des attaques réseau de bas niveau.
+
+---
+
+```nix
+  RestrictNamespaces = true;
+```
+
+Interdit au service de créer de nouveaux **namespaces noyau** (via les appels système `unshare` ou `clone` avec des flags de namespace). C'est une mesure contre les **techniques d'évasion de sandbox** : certaines attaques avancées créent un nouveau namespace utilisateur non privilégié pour s'y accorder des capacités élevées, puis utilisent ces capacités pour remonter vers l'hôte.
+
+> *Sans cette directive, un attaquant suffisamment créatif pourrait tenter de creuser un tunnel hors du confinement via des namespaces imbriqués. `RestrictNamespaces = true` rebouche ce tunnel.*
+
+---
+
+```nix
+  LockPersonality = true;
+```
+
+Empêche la modification du **domaine d'exécution** (aussi appelé *personality*) du processus. Le domaine d'exécution détermine certains comportements de compatibilité ABI du noyau — par exemple, émuler une ABI Linux 32 bits ou une ABI BSD. Le verrouiller bloque des techniques d'exploitation qui s'appuient sur le changement de personnalité pour contourner certaines protections noyau (comme ASLR).
+
+---
+
+```nix
+  ProtectKernelModules = true;
+```
+
+Interdit au service de charger ou décharger des **modules noyau** (appels système `init_module`, `finit_module`, `delete_module`). Transmission n'a aucune raison légitime de charger des modules. Cette directive bloque un vecteur d'escalade de privilèges où un attaquant chargerait un module noyau malveillant pour prendre le contrôle total de la machine.
+
+---
+
+```nix
+  ProtectKernelTunables = true;
+```
+
+Monte `/proc/sys` et certaines parties de `/sys` en **lecture seule** du point de vue du service. Ces interfaces permettent normalement de modifier les paramètres du noyau en temps réel (taille des buffers réseau, activation de fonctionnalités, etc.). Transmission n'a aucune raison de les modifier — les verrouiller en lecture seule réduit encore la surface d'attaque noyau.
+
+---
+
+```nix
   BindPaths = transmissionWritePaths;
 ```
 
