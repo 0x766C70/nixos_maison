@@ -105,10 +105,16 @@
 
   systemd.services."remote_backup_nc" = {
     description = "Remote backup of Nextcloud data via reverse SSH tunnel";
-    path = [ pkgs.openssh ];
+    path = [ pkgs.openssh pkgs.gnupg ];
     script = ''
       set -e  # Exit immediately on error
-      
+
+      # Export the GPG agent SSH socket so that SSH can authenticate using the
+      # YubiKey-backed key.  In interactive sessions this is done by .bashrc, but
+      # systemd services do not source .bashrc, so we must set it here explicitly.
+      export SSH_AUTH_SOCK=$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)
+      ${pkgs.gnupg}/bin/gpgconf --launch gpg-agent
+
       echo "Starting remote Nextcloud backup at $(date)"
       
       # azul is inside the tailnet and cannot be reached directly from maison
