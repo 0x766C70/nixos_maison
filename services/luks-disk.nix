@@ -59,4 +59,29 @@
     # This is critical for preventing boot hangs
     options = [ "nofail" ];
   };
+
+  # Fix ownership/permissions on the backup mount root after mount
+  # The ext4 filesystem root is typically owned by root; this corrects it
+  # so that vlp can read and traverse the mount point.
+  systemd.services.luks-sdb1-fixperms = {
+    description = "Fix permissions on LUKS backup mount point";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "home-vlp-backup.mount" ];
+    wants = [ "home-vlp-backup.mount" ];
+    # Only run when the disk is actually mounted; skip gracefully otherwise
+    unitConfig.ConditionPathIsMountPoint = "/home/vlp/backup";
+
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      User = "root";
+      Group = "root";
+    };
+
+    script = ''
+      set -e
+      chown vlp:vlp /home/vlp/backup
+      chmod 0750 /home/vlp/backup
+    '';
+  };
 }
