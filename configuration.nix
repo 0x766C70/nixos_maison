@@ -12,7 +12,6 @@
       ./services/transmission.nix
       ./services/caddy.nix
       ./services/headscale.nix
-      ./services/tailscale.nix
       ./services/nextcloud.nix
       ./services/prom.nix
       ./services/timers.nix
@@ -89,6 +88,9 @@
       UseDns = true;
       X11Forwarding = false;
       PermitRootLogin = "prohibit-password";
+      # Required so azul can maintain a reverse SSH tunnel to expose its port 22
+      # on maison's localhost:2222 for the remote backup job.
+      AllowTcpForwarding = "yes";
     };
   };
 
