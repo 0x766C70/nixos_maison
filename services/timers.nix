@@ -104,17 +104,48 @@
   };
 
   systemd.services."remote_backup_nc" = {
-    description = "Remote backup of Nextcloud data";
+    description = "Remote backup of Nextcloud data via reverse SSH tunnel";
     path = [ pkgs.openssh ];
     script = ''
       set -e  # Exit immediately on error
       
       echo "Starting remote Nextcloud backup at $(date)"
       
-      # Run rsync backup to remote server
+      # azul is inside the tailnet and cannot be reached directly from maison
+      # (headscale control servers must not join the tailnet).
+      # Instead, azul maintains a persistent reverse SSH tunnel to maison:
+      #
+      #   On azul (run once, e.g. via a systemd service):
+      #     autossh -M 0 -N -R 127.0.0.1:2222:localhost:22 \
+      #       -i /home/vlp/.ssh/id_ed25519_tunnel \
+      #       -p 1337 vlp@hs.vlp.fdn.fr
+      #
+      # This exposes azul:22 on maison's localhost:2222.
+      
+      # Verify the reverse tunnel is active before attempting the backup.
+      # Use ssh in BatchMode so it exits immediately without prompting:
+      # exit code 0 = tunnel up + auth works; non-zero = tunnel down or no key.
+      if ! ${pkgs.openssh}/bin/ssh \
+           -p 2222 \
+           -o ConnectTimeout=5 \
+           -o BatchMode=yes \
+           -o StrictHostKeyChecking=accept-new \
+           vlp@127.0.0.1 exit 2>/dev/null; then
+        echo "ERROR: Reverse SSH tunnel from azul is not active on localhost:2222"
+        echo "Ensure azul is running: autossh -M 0 -N -R 127.0.0.1:2222:localhost:22 -p 1337 vlp@hs.vlp.fdn.fr"
+        exit 1
+      fi
+      
+      echo "Reverse tunnel to azul is active - proceeding with backup"
+      
+      # Run rsync through the reverse tunnel (azul's SSH is on localhost:2222).
+      # StrictHostKeyChecking=accept-new is acceptable here: the connection is
+      # to 127.0.0.1 over the already-authenticated reverse tunnel, so MITM
+      # is not a practical concern.
       ${pkgs.rsync}/bin/rsync -a --delete \
+        -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new" \
         /root/backup/nextcloud/ \
-        vlp@azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/
+        vlp@127.0.0.1:/home/vlp/backup_maison/nextcloud/
       
       echo "Remote Nextcloud backup completed successfully at $(date)"
     '';
