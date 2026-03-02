@@ -229,7 +229,7 @@
 
   systemd.services."transmission-prune-finished-30d" = {
     description = "Prune finished Transmission torrents older than 30 days";
-    path = [ pkgs.transmission_4 ];
+    path = [ pkgs.transmission_4 pkgs.gawk pkgs.coreutils pkgs.gnugrep pkgs.gnused pkgs.findutils ];
     script = ''
       ${pkgs.bash}/bin/bash ${../bin/transmission-prune-finished-30d.sh}
     '';
