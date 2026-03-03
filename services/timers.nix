@@ -87,7 +87,10 @@
     '';
     serviceConfig = {
       Type = "oneshot";
-      User = "vlp";
+      User = "root";
+      # Restrict write access: only the backup destination is writable
+      ProtectSystem = "strict";
+      ReadWritePaths = [ "/home/vlp/backup" ];
     };
     # Send email notification on failure
     onFailure = [ "backup-failure-notification@%n.service" ];
