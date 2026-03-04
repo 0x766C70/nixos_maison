@@ -138,7 +138,7 @@
            -i /home/vlp/.ssh/id_ed25519 \
            -o BatchMode=yes \
            -o StrictHostKeyChecking=accept-new \
-           vlp@127.0.0.1 exit 2>&1; then
+           vlp@127.0.0.1 true 2>&1; then
         echo "ERROR: Reverse SSH tunnel from azul is not active on localhost:2222"
         echo "Ensure azul is running: autossh -M 0 -N -R 127.0.0.1:2222:localhost:22 -p 1337 vlp@hs.vlp.fdn.fr"
         exit 1
