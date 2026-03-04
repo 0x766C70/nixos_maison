@@ -151,7 +151,7 @@
       # to 127.0.0.1 over the already-authenticated reverse tunnel, so MITM
       # is not a practical concern.
       ${pkgs.rsync}/bin/rsync -a --delete \
-        -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new$SSH_TRANSPORT_VERBOSE -i /home/vlp/.ssh/id_ed25519" \
+        -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new -i /home/vlp/.ssh/id_ed25519" \
         /home/vlp/backup/nextcloud/ \
         vlp@127.0.0.1:/home/vlp/backup_maison/nextcloud/
       
