@@ -4,16 +4,21 @@
 }:
 {
   # NAS folder mounting
+  # These tmpfiles rules define the local mount-point directories and their
+  # permissions (owner vlp:vlp, mode as shown).  They are created once on
+  # boot; the actual file permissions inside each directory are controlled
+  # by the NFS server (192.168.1.10).
+  # Note: /home/vlp/backup is intentionally absent here – its mount-point
+  # and permissions are managed by services/luks-disk.nix.
   systemd.tmpfiles.rules = [
-    "d /mnt/animations 0751 vlp vlp - -"
-    "d /mnt/audio 0751 vlp vlp - -"
+    "d /mnt/animations 0755 vlp vlp - -"
+    "d /mnt/audio 0755 vlp vlp - -"
     "d /mnt/docu 0755 vlp vlp - -"
     "d /mnt/ebooks 0755 vlp vlp - -"
     "d /mnt/games 0755 vlp vlp - -"
     "d /mnt/movies 0755 vlp vlp - -"
     "d /mnt/tvshows 0755 vlp vlp - -"
     "d /mnt/downloads 0775 vlp vlp - -"
-    "d /home/vlp/backup 0750 vlp vlp - -"
     "d /home/vlp/partages 0750 vlp vlp - -"
   ];
 
