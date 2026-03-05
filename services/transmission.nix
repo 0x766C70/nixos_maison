@@ -9,6 +9,7 @@ let
   transmissionWritePaths = [
     "/var/lib/transmission" # Config/state directory (managed by the NixOS module)
     "/mnt/downloads"        # Download directory (download-dir and incomplete-dir)
+    "/mnt/games"        # Games directory
   ];
 
   # Mirror the upstream transmission module's internal let-bindings so we can
