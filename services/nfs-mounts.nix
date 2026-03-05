@@ -16,11 +16,11 @@
   systemd.tmpfiles.rules = [
     "d /mnt/animations 0775 vlp transmission - -"
     "d /mnt/audio 0775 vlp transmission - -"
-    "d /mnt/docu 0755 vlp vlp - -"
+    "d /mnt/docu 0775 vlp transmission - -"
     "d /mnt/ebooks 0775 vlp transmission - -"
     "d /mnt/games 0775 vlp transmission - -"
     "d /mnt/movies 0775 vlp transmission - -"
-    "d /mnt/tvshows 0755 vlp vlp - -"
+    "d /mnt/tvshows 0775 vlp transmission - -"
     "d /mnt/downloads 0775 vlp transmission - -"
     "d /home/vlp/partages 0750 vlp vlp - -"
   ];
