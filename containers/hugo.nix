@@ -62,7 +62,7 @@
             enable = true;
             allowedTCPPorts = [
               80
-              433
+              443
               1337 # openssh
             ];
           };
