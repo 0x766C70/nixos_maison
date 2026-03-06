@@ -17,8 +17,44 @@
         ...
       }:
       {
+        environment.systemPackages = with pkgs; [
 
-        system.stateVersion = "24.11";
+          # basic tools
+          vim
+          git
+          openssh
+          hugo
+        ];
+
+        users.users.vlp = {
+          isNormalUser = true;
+          description = "vlp";
+          extraGroups = [
+            "networkmanager"
+            "wheel"
+          ];
+          packages = with pkgs; [ ];
+          openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955"
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZkKbJKyVDNdbwNiVC9mb87ACxWJrm5ZxLjysdiLVEo vlp@vlaptop"
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjhXY6k35R5uEcI1agihEFjee9vjE69v8dpxa4o8Y9b vlp@azul"
+          ];
+        };
+
+        services.openssh = {
+          enable = true;
+          ports = [ 1337 ];
+          settings = {
+            PasswordAuthentication = false;
+            AllowUsers = [ "vlp" ];
+            UseDns = true;
+            X11Forwarding = false;
+            PermitRootLogin = "prohibit-password";
+            # Required so azul can maintain a reverse SSH tunnel to expose its port 22
+            # on maison's localhost:2222 for the remote backup job.
+            AllowTcpForwarding = "yes";
+          };
+        };
 
         networking = {
           firewall = {
@@ -35,6 +71,7 @@
 
         services.resolved.enable = true;
 
+        system.stateVersion = "24.11";
       };
   };
 }
