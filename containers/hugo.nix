@@ -63,6 +63,7 @@
             allowedTCPPorts = [
               80
               433
+              1337 # openssh
             ];
           };
           # Use systemd-resolved inside the container
