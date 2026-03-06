@@ -16,7 +16,7 @@
 
   networking.nat = {
     enable = true;
-    internalInterfaces = [ "incusbr1" ];
+    internalInterfaces = [ "incusbr1" "ve-+"];
     externalInterface = "tun0";
   };
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
