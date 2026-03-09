@@ -107,6 +107,10 @@
   # Incus configuration
   virtualisation.incus.enable = true;
 
+  # Containers configuration
+  boot.enableContainers = true;
+  virtualisation.containers.enable = true;
+
   # agix configuration
   age.identityPaths = [ "/root/.ssh/id_ed25519" ];
   age.secrets.nextcloud = {
