@@ -18,7 +18,7 @@
       ./services/nfs-mounts.nix
       ./services/luks-disk.nix
       ./services/fail2ban.nix
-      ./containers/hugo.nix
+      #./containers/hugo.nix
     ];
 
   # Bootloader.
