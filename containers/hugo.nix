@@ -55,7 +55,7 @@
         };
 
         networking = {
-          defaultGateway = "192.168.1.42"; # host veth address — gateway for NAT through tun0
+          defaultGateway = "10.0.0.1"; # host veth address — gateway for NAT through eno1
           nameservers = [ "1.1.1.1" ];
           firewall = {
             enable = true;
