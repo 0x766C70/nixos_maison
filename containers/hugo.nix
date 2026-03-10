@@ -7,8 +7,8 @@
   containers.hugo = {
     autoStart = true;
     privateNetwork = true;
-    hostAddress = "192.168.1.42";
-    localAddress = "192.168.1.101";
+    hostAddress = "10.0.0.1";
+    localAddress = "10.0.0.2";
     config =
       {
         config,
