@@ -7,8 +7,8 @@
   containers.hugo = {
     autoStart = true;
     privateNetwork = true;
-    hostAddress = "192.168.1.42";
-    localAddress = "192.168.1.101";
+    hostAddress = "10.0.0.1";   # host-side veth — must not conflict with eno1 (192.168.1.42)
+    localAddress = "10.0.0.2";  # container-side veth
     config =
       {
         config,
@@ -55,7 +55,7 @@
         };
 
         networking = {
-          defaultGateway = "192.168.1.42"; # host veth address — gateway for NAT through tun0
+          defaultGateway = "10.0.0.1"; # host-side veth — gateway for NAT through eno1
           nameservers = [ "1.1.1.1" ];
           firewall = {
             enable = true;

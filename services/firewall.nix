@@ -17,7 +17,7 @@
   networking.nat = {
     enable = true;
     internalInterfaces = [ "incusbr1" "ve-+"];
-    externalInterface = "tun0";
+    externalInterface = "eno1"; # use the physical LAN interface so containers always reach the internet
   };
   networking.firewall.trustedInterfaces = [ "incusbr0" ];
 }
