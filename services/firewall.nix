@@ -19,6 +19,6 @@
     internalInterfaces = [ "incusbr1" "ve-+"];
     externalInterface = "eno1";
   };
-  networking.firewall.trustedInterfaces = [ "incusbr0" ];
+  networking.firewall.trustedInterfaces = [ "incusbr0" "ve-+" ];
 
 }
