@@ -55,6 +55,10 @@
     virtualHosts."hs.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://127.0.0.1:8085
     '';
+    virtualHosts."alicante.vlp.fdn.fr".extraConfig = ''
+      root /home/vlp/www/alicante/
+      file_server
+    '';
   };
   
   # Ensure log directory exists with proper permissions

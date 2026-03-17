@@ -7,8 +7,8 @@
   containers.hugo = {
     autoStart = true;
     privateNetwork = true;
-    hostAddress = "10.0.0.1";
-    localAddress = "10.0.0.2";
+    hostAddress = "192.168.1.42";
+    localAddress = "192.168.1.43";
     config =
       {
         config,
@@ -55,7 +55,7 @@
         };
 
         networking = {
-          defaultGateway = "10.0.0.1"; # host veth address — gateway for NAT through eno1
+          defaultGateway = "10.0.0.1"; 
           nameservers = [ "1.1.1.1" ];
           firewall = {
             enable = true;

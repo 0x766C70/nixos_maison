@@ -83,5 +83,6 @@
     caddy
     ttyd
     minidlna
+    hugo
   ];
 }
