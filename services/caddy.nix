@@ -1,20 +1,41 @@
 { config
+, lib
 , pkgs
 , ...
 }:
+let
+  # Canonical path to the Alicante static website on disk.
+  # /var/www is the FHS-standard location for web content served by a system
+  # daemon.  It avoids every workaround that serving from a home directory
+  # requires (homeMode hacks, adding caddy to the 'users' group, etc.).
+  # To migrate: rsync -a /home/vlp/www/alicante/ /var/www/alicante/
+  alicantePath = "/var/www/alicante";
+in
 {
+  # ---------------------------------------------------------------------------
+  # Eval-time sanity check — caught before nixos-rebuild even touches the disk.
+  # ---------------------------------------------------------------------------
+  assertions = [
+    {
+      # Catches accidental relative paths (e.g. "var/www/alicante") that Caddy
+      # would silently resolve from its working directory instead of filesystem root.
+      assertion = lib.hasPrefix "/" alicantePath;
+      message = "caddy: alicantePath (\"${alicantePath}\") must be an absolute path.";
+    }
+  ];
+
   services.caddy = {
     enable = true;
-    
+
     # No global logging - each virtualhost with auth has its own log file for fail2ban
-    
+
     virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
       log {
         output file /var/log/caddy/access-dl.vlp.fdn.fr.log {
-        	roll_size 10MiB    # Rotate after 10MB
-        	roll_keep 5       # Keep 5 rotated files
-        	roll_keep_for 720h # Keep for 30 days (720h)
-	}
+          roll_size 10MiB    # Rotate after 10MB
+          roll_keep 5        # Keep 5 rotated files
+          roll_keep_for 720h # Keep for 30 days (720h)
+        }
         format json
       }
       basic_auth {
@@ -56,13 +77,46 @@
       reverse_proxy http://127.0.0.1:8085
     '';
     virtualHosts."alicante.vlp.fdn.fr".extraConfig = ''
-      root /home/vlp/www/alicante/
+      # root * sets the filesystem root for all requests ('*' = match-all).
+      # In Caddy v2 the explicit matcher is required when using root inside a
+      # route or alongside other matchers; it is idiomatic to always write it.
+      root * ${alicantePath}
+
+      # Compress responses with zstd (modern) or gzip (legacy) for faster delivery
+      encode zstd gzip
+
       file_server
+
+      # Basic security headers for a static site
+      header {
+        # Prevent MIME-type sniffing attacks
+        X-Content-Type-Options "nosniff"
+        # Disallow embedding in iframes from other origins
+        X-Frame-Options "SAMEORIGIN"
+        # Limit referrer leakage
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Cache static assets for 1 hour; clients revalidate after that
+        Cache-Control "public, max-age=3600, must-revalidate"
+      }
     '';
   };
-  
-  # Ensure log directory exists with proper permissions
+
+  # ---------------------------------------------------------------------------
+  # Directory provisioning
+  # ---------------------------------------------------------------------------
+  # Ensure all required directories exist with the correct ownership/permissions.
+  # 'd' creates the directory if absent but does NOT alter an existing one.
   systemd.tmpfiles.rules = [
+    # Caddy log directory (used by per-vhost access logs and fail2ban)
     "d /var/log/caddy 0750 caddy caddy -"
+    # Standard web root parent — world-readable, owned by root (FHS convention)
+    "d /var/www 0755 root root -"
+    # Alicante website root:
+    #   vlp  (owner) — rwx: deploys and manages content
+    #   caddy (group) — r-x: reads and serves files
+    #   other        — ---: no access (belt-and-suspenders)
+    "d ${alicantePath} 0750 vlp caddy -"
   ];
+  # No homeMode or extraGroups hacks needed — /var/www lives outside any home
+  # directory, so Caddy reaches it without any special filesystem gymnastics.
 }
