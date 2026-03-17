@@ -65,7 +65,7 @@
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "scanner" "transmission" "nextcloud" ];
+    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "scanner" "transmission" "nextcloud" "caddy"];
     packages = with pkgs; [ ];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZkKbJKyVDNdbwNiVC9mb87ACxWJrm5ZxLjysdiLVEo vlp@vlaptop" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJjhXY6k35R5uEcI1agihEFjee9vjE69v8dpxa4o8Y9b vlp@azul"];
     # Keep the user's systemd session (and thus the GPG agent) alive even when

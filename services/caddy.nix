@@ -4,11 +4,6 @@
 , ...
 }:
 let
-  # Canonical path to the Alicante static website on disk.
-  # /var/www is the FHS-standard location for web content served by a system
-  # daemon.  It avoids every workaround that serving from a home directory
-  # requires (homeMode hacks, adding caddy to the 'users' group, etc.).
-  # To migrate: rsync -a /home/vlp/www/alicante/ /var/www/alicante/
   alicantePath = "/var/www/alicante";
 in
 {
@@ -77,15 +72,10 @@ in
       reverse_proxy http://127.0.0.1:8085
     '';
     virtualHosts."alicante.vlp.fdn.fr".extraConfig = ''
-      # root * sets the filesystem root for all requests ('*' = match-all).
-      # In Caddy v2 the explicit matcher is required when using root inside a
-      # route or alongside other matchers; it is idiomatic to always write it.
+      
       root * ${alicantePath}
-
-      # Compress responses with zstd (modern) or gzip (legacy) for faster delivery
-      encode zstd gzip
-
       file_server
+      encode zstd gzip
 
       # Basic security headers for a static site
       header {
