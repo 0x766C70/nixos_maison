@@ -84,5 +84,6 @@
     ttyd
     minidlna
     hugo
+    github-runner
   ];
 }

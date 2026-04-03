@@ -68,6 +68,10 @@
       frd = "sudo nixos-rebuild dry-activate --flake /home/vlp/nixos_maison";
       scanit = "sudo scanimage --format=png --resolution=300 --mode Color -p > /home/vlp/partages/scan.png";
       laptop = "ssh 192.168.101.13";
+      botbot = "ssh 192.168.101.17";
+      gateway-fdn = "ssh 192.168.101.18";
+      new-dl = "ssh 192.168.101.12";
+      webserver = "ssh 192.168.101.11";
     };
   };
 

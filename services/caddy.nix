@@ -99,12 +99,7 @@ in
   systemd.tmpfiles.rules = [
     # Caddy log directory (used by per-vhost access logs and fail2ban)
     "d /var/log/caddy 0770 caddy caddy -"
-    # Standard web root parent — world-readable, owned by root (FHS convention)
-    "d /var/www 0755 root root -"
-    # Alicante website root:
-    #   vlp  (owner) — rwx: deploys and manages content
-    #   caddy (group) — r-x: reads and serves files
-    #   other        — ---: no access (belt-and-suspenders)
+    "d /var/www 0755 caddy caddy -"
     "d ${alicantePath} 0770 caddy caddy -"
   ];
   # No homeMode or extraGroups hacks needed — /var/www lives outside any home

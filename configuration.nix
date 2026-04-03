@@ -11,7 +11,7 @@
       ./services/dlna.nix
       ./services/transmission.nix
       ./services/caddy.nix
-      ./services/headscale.nix
+      #./services/headscale.nix
       ./services/nextcloud.nix
       ./services/prom.nix
       ./services/timers.nix
