@@ -107,54 +107,24 @@
   };
 
   systemd.services."remote_backup_nc" = {
-    description = "Remote backup of Nextcloud data via reverse SSH tunnel";
-    path = [ pkgs.openssh pkgs.gnupg ];
+    description = "Remote backup of Nextcloud data to azul via tailscale";
+    path = [ pkgs.openssh pkgs.rsync ];
     script = ''
       set -e  # Exit immediately on error
 
-      # Make SSH_AUTH_SOCK available so ssh/rsync can reach the GPG agent that
-      # holds the YubiKey-backed SSH key.  This mirrors what bashrcExtra does
-      # for interactive sessions; without it, systemd services never have this
-      # variable set and publickey authentication fails.
-      export SSH_AUTH_SOCK=$(${pkgs.gnupg}/bin/gpgconf --list-dirs agent-ssh-socket)
-      ${pkgs.gnupg}/bin/gpgconf --launch gpg-agent
+      REMOTE_HOST="100.64.0.13"  # azul's tailscale IP
+      REMOTE_USER="vlp"
+      REMOTE_DEST="/home/vlp/backup_maison/nextcloud/"
+      LOCAL_SRC="/home/vlp/backup/nextcloud/"
+      SSH_KEY="/home/vlp/.ssh/id_ed25519"
 
-      echo "Starting remote Nextcloud backup at $(date)"
-      
-      # azul is inside the tailnet and cannot be reached directly from maison
-      # (headscale control servers must not join the tailnet).
-      # Instead, azul maintains a persistent reverse SSH tunnel to maison:
-      #
-      #   On azul (run once, e.g. via a systemd service):
-      #     autossh -M 0 -N -R 127.0.0.1:2222:localhost:22 \
-      #       -i /home/vlp/.ssh/id_ed25519_tunnel \
-      #       -p 1337 vlp@hs.vlp.fdn.fr
-      #
-      # This exposes azul:22 on maison's localhost:2222.
-      
-      if ! ${pkgs.openssh}/bin/ssh \
-           -p 2222 \
-           -o ConnectTimeout=5 \
-           -i /home/vlp/.ssh/id_ed25519 \
-           -o BatchMode=yes \
-           -o StrictHostKeyChecking=accept-new \
-           vlp@127.0.0.1 true 2>&1; then
-        echo "ERROR: Reverse SSH tunnel from azul is not active on localhost:2222"
-        echo "Ensure azul is running: autossh -M 0 -N -R 127.0.0.1:2222:localhost:22 -p 1337 vlp@hs.vlp.fdn.fr"
-        exit 1
-      fi
-      
-      echo "Reverse tunnel to azul is active - proceeding with backup"
-      
-      # Run rsync through the reverse tunnel (azul's SSH is on localhost:2222).
-      # StrictHostKeyChecking=accept-new is acceptable here: the connection is
-      # to 127.0.0.1 over the already-authenticated reverse tunnel, so MITM
-      # is not a practical concern.
+      echo "Starting remote Nextcloud backup to azul ($REMOTE_HOST) at $(date)"
+
       ${pkgs.rsync}/bin/rsync -a --delete \
-        -e "${pkgs.openssh}/bin/ssh -p 2222 -o StrictHostKeyChecking=accept-new -i /home/vlp/.ssh/id_ed25519" \
-        /home/vlp/backup/nextcloud/ \
-        vlp@127.0.0.1:/home/vlp/backup_maison/nextcloud/
-      
+        -e "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -i $SSH_KEY" \
+        "$LOCAL_SRC" \
+        "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST"
+
       echo "Remote Nextcloud backup completed successfully at $(date)"
     '';
     serviceConfig = {
