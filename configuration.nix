@@ -11,14 +11,12 @@
       ./services/dlna.nix
       ./services/transmission.nix
       ./services/caddy.nix
-      #./services/headscale.nix
       ./services/nextcloud.nix
       ./services/prom.nix
       ./services/timers.nix
       ./services/nfs-mounts.nix
       ./services/luks-disk.nix
       ./services/fail2ban.nix
-      #./containers/hugo.nix
     ];
 
   # Bootloader.
