@@ -116,12 +116,11 @@
       REMOTE_USER="vlp"
       REMOTE_DEST="/home/vlp/backup_maison/nextcloud/"
       LOCAL_SRC="/home/vlp/backup/nextcloud/"
-      SSH_KEY="/home/vlp/.ssh/id_ed25519"
 
       echo "Starting remote Nextcloud backup to azul ($REMOTE_HOST) at $(date)"
 
       ${pkgs.rsync}/bin/rsync -a --delete \
-        -e "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -i $SSH_KEY" \
+        -e "${pkgs.openssh}/bin/ssh -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new -p 1337 " \
         "$LOCAL_SRC" \
         "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DEST"
 
