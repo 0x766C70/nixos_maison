@@ -15,7 +15,7 @@
       ./services/prom.nix
       ./services/timers.nix
       ./services/nfs-mounts.nix
-      ./services/luks-disk.nix
+      ./services/luks-sdb1.nix
       ./services/luks-sda1.nix
       ./services/fail2ban.nix
       ./services/jellyfin.nix
