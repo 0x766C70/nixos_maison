@@ -16,7 +16,7 @@
     checkConfig = "syntax-only";
     scrapeConfigs = [
       {
-        job_name = "nuc_node";
+        job_name = "maison_node";
         static_configs = [{
           targets = [ "localhost:${toString config.services.prometheus.exporters.node.port}" ];
         }];
