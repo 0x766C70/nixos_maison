@@ -3,7 +3,11 @@
 , ...
 }:
 {
-  services.jellyfin.enable = true;
+  services.jellyfin = {
+    enable = true;
+ #   openFirewall = true;
+    user = "vlp";
+  };
   environment.systemPackages = [
     pkgs.jellyfin
     pkgs.jellyfin-web

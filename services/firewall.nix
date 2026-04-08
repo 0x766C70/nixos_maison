@@ -7,12 +7,15 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8085 8096];
+    allowedTCPPorts = [ 80 443 1337];
+    interfaces."tailscale0".allowedTCPPorts = [ 8096 ];
   };
-  
+ 
+
   # 80 - 443 Caddy/nextcloud
   # 1337 - ssh avec fail2ban
-  # 8085 - headscale
+  # 8096 - jellyfun only on tailscale
+
 
   networking.nat = {
     enable = true;
