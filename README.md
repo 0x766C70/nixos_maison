@@ -70,8 +70,8 @@ The server runs on static IP `192.168.1.42` with the following services:
 Secrets are managed using [agenix](https://github.com/ryantm/agenix):
 
 ```bash
-# Edit secrets (requires age key)
-agenix -e secrets/mySecret.age
+# Edit secrets (requires age key) echo tricks or it add a LR at the end
+echo -n "super p4ssw0rd" | agenix -e secrets/mySecret.age
 ```
 
 Secrets are defined in `secrets/secrets.nix` and configured in `configuration.nix`.
