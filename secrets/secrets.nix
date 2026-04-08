@@ -9,5 +9,6 @@ in
   "caddy_mlc.age".publicKeys = [ user1 ];
   "caddy_vlp.age".publicKeys = [ user1 ];
   "luks_sdb1.age".publicKeys = [ user1 ];
+  "luks_sda1.age".publicKeys = [ user1 ];
 }
 
