@@ -7,7 +7,7 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337 8085];
+    allowedTCPPorts = [ 80 443 1337 8085 8096];
   };
   
   # 80 - 443 Caddy/nextcloud

@@ -10,6 +10,7 @@
     vim
     neovim
     git
+    tig
     nnn
     zip
     xz
