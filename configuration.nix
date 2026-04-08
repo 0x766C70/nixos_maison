@@ -64,7 +64,11 @@
   users.users.vlp = {
     isNormalUser = true;
     description = "vlp";
-    extraGroups = [ "networkmanager" "wheel" "incus-admin" "mlc" "scanner" "transmission" "nextcloud" "caddy"];
+    extraGroups = [
+      "networkmanager" "wheel" "incus-admin" "mlc" "scanner"
+      "transmission" "nextcloud" "caddy"
+      "video" "render" # video+render required for VA-API / /dev/dri access
+    ];
     packages = with pkgs; [ ];
     openssh.authorizedKeys.keys = [ "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMlXpy4JAK6MQ6JOz/nGRblIYU6CO1PapIgL0SsFRk1C cardno:11_514_955" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPLkYoFiIkOdrM5xyeBPXTm7rctXY6OIfj72HV0M9B3v vlp@laptop" "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKZkKbJKyVDNdbwNiVC9mb87ACxWJrm5ZxLjysdiLVEo vlp@vlaptop" ];
     # Keep the user's systemd session (and thus the GPG agent) alive even when
