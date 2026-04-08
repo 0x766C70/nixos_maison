@@ -7,8 +7,8 @@
   networking.nftables.enable = true;
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = [ 80 443 1337];
-    interfaces."tailscale0".allowedTCPPorts = [ 8096 ];
+    allowedTCPPorts = [ 80 443 1337 ];
+    interfaces."tailscale0".allowedTCPPorts = [ 8096 9091 ];
   };
  
 

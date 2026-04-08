@@ -24,20 +24,6 @@ in
 
     # No global logging - each virtualhost with auth has its own log file for fail2ban
 
-    virtualHosts."dl.vlp.fdn.fr".extraConfig = ''
-      log {
-        output file /var/log/caddy/access-dl.vlp.fdn.fr.log {
-          roll_size 10MiB    # Rotate after 10MB
-          roll_keep 5        # Keep 5 rotated files
-          roll_keep_for 720h # Keep for 30 days (720h)
-        }
-        format json
-      }
-      basic_auth {
-        mlc {file.${config.age.secrets.caddy_mlc.path}}
-      }
-      reverse_proxy http://localhost:9091
-    '';
     virtualHosts."nuage.vlp.fdn.fr".extraConfig = ''
       reverse_proxy http://localhost:8080 {
         # Pass real client IP to Nextcloud
@@ -45,16 +31,6 @@ in
         header_up X-Forwarded-For {remote_host}
         header_up X-Forwarded-Proto {scheme}
       }
-    '';
-    virtualHosts."laptop.vlp.fdn.fr".extraConfig = ''
-      log {
-        output file /var/log/caddy/access-laptop.vlp.fdn.fr.log
-        format json
-      }
-      basic_auth / {
-        vlp {file.${config.age.secrets.caddy_vlp.path}}
-      }
-      reverse_proxy http://192.168.101.13:7681
     '';
     virtualHosts."web.vlp.fdn.fr".extraConfig = ''
       reverse_proxy 192.168.101.11:80
@@ -67,9 +43,6 @@ in
     '';
     virtualHosts."ai.web.vlp.fdn.fr".extraConfig = ''
       reverse_proxy 192.168.101.11:80
-    '';
-    virtualHosts."hs.vlp.fdn.fr".extraConfig = ''
-      reverse_proxy http://127.0.0.1:8085
     '';
     virtualHosts."alicante.vlp.fdn.fr".extraConfig = ''
       
