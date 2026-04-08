@@ -16,6 +16,7 @@
       ./services/timers.nix
       ./services/nfs-mounts.nix
       ./services/luks-disk.nix
+      ./services/luks-sda1.nix
       ./services/fail2ban.nix
       ./services/jellyfin.nix
     ];
@@ -146,6 +147,12 @@
   };
   age.secrets.luks_sdb1 = {
     file = ./secrets/luks_sdb1.age;
+    owner = "root";
+    group = "root";
+    mode = "0400";
+  };
+  age.secrets.luks_sda1 = {
+    file = ./secrets/luks_sda1.age;
     owner = "root";
     group = "root";
     mode = "0400";
