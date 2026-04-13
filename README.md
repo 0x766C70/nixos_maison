@@ -49,11 +49,11 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 ### Build and Deploy
 
 ```bash
-# Test configuration
-nixos-rebuild dry-build --flake .#maison
+# Test configuration (dry-activate — preview changes without applying)
+frd
 
 # Build and switch
-sudo nixos-rebuild switch --flake .#maison
+fr
 ```
 
 ### Access Services
@@ -200,7 +200,7 @@ Environment variables:
 nix flake update
 
 # Apply updates
-sudo nixos-rebuild switch --flake .#maison
+fr
 ```
 
 ## 🛠️ Customization
