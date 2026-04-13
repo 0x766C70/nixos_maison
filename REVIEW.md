@@ -320,6 +320,14 @@ If you want to achieve 100% reproducibility:
 
 ---
 
+## 🔒 Security Grade
+
+**Grade: A**
+
+The configuration demonstrates a strong, security-first posture: SSH password authentication is disabled (keys-only with YubiKey), all sensitive data is managed through agenix encryption, the backup disk uses LUKS, Caddy enforces HTTPS across every public endpoint with basic-auth protection on sensitive routes, fail2ban actively guards SSH, Nextcloud, and Caddy, and the firewall uses an explicit allow-list via nftables. The sole remaining gap—the OpenVPN config file living outside the Nix store at `/root/fdn.conf`—prevents a perfect A+ score, as it breaks full reproducibility and could expose credentials if not handled carefully. Resolve that last point (import via agenix or `builtins.readFile`) and this configuration earns a clean **A+**.
+
+---
+
 **Review Date:** 2026-02-14  
 **Reviewer:** botbot (NixOS Configuration Analyst)  
 **Config Version:** NixOS 24.11  
