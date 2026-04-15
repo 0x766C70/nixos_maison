@@ -32,7 +32,6 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 │   ├── prom.nix              # Monitoring
 │   ├── firewall.nix          # nftables + NAT
 │   ├── fail2ban.nix          # Intrusion prevention
-│   ├── headscale.nix         # Mesh VPN
 │   ├── timers.nix            # Backup automation
 │   └── ...
 └── secrets/                   # Age-encrypted secrets

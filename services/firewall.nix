@@ -8,6 +8,7 @@
   networking.firewall = {
     enable = true;
     allowedTCPPorts = [ 80 443 1337 51413 ];
+    allowedUDPPorts = [ 51413 ];
     interfaces."tailscale0".allowedTCPPorts = [ 8096 9091 ];
   };
  
