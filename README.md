@@ -5,15 +5,17 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 ## ✨ Features
 
 - **Cloud Storage**: Nextcloud 32 with PostgreSQL backend and Redis caching
-- **Reverse Proxy**: Caddy server managing multiple virtual hosts with HTTPS
-- **Media Server**: MiniDLNA streaming to local network devices
-- **Torrent Client**: Transmission with Flood web interface
+- **Reverse Proxy**: Caddy server managing HTTPS for Nextcloud
+- **Media Server**: Jellyfin with Intel VA-API hardware transcoding (Tailscale-only); MiniDLNA for local DLNA streaming
+- **Torrent Client**: Transmission (Tailscale-only)
 - **Monitoring**: Prometheus with node exporter and Grafana Cloud integration
+- **Email Notifications**: msmtp via Infomaniak SMTP — backup failures and public IP changes sent to `contact@766c70.com`
 - **Security**: fail2ban intrusion prevention for SSH, Caddy basic auth, and Nextcloud brute force protection
-- **Automated Backups**: Scheduled Nextcloud and system backups to remote server
-- **Encrypted Storage**: LUKS-encrypted backup disk with automatic unlock
-- **Network Services**: NFS mounts, OpenVPN, SSH, and firewall management
+- **Automated Backups**: Scheduled Nextcloud backups to local encrypted disk and remote server (via Tailscale)
+- **Encrypted Storage**: Two LUKS-encrypted disks — backup disk (`sdb1 → /home/vlp/backup`) and downloads disk (`sda1 → /mnt/downloads`)
+- **Network Services**: NFS mounts, Tailscale, OpenVPN, SSH, and nftables firewall with NAT for Incus containers
 - **Secrets Management**: Agenix for encrypted configuration secrets
+- **Virtualisation**: Incus containers with NAT networking
 
 ## 📁 Structure
 
@@ -24,15 +26,19 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 ├── home.nix                   # Home Manager user environment
 ├── apps.nix                   # System packages
 ├── services/                  # Modular service configurations
-│   ├── caddy.nix             # Reverse proxy
+│   ├── caddy.nix             # Reverse proxy (HTTPS for Nextcloud)
 │   ├── nextcloud.nix         # Cloud storage
-│   ├── transmission.nix      # Torrent client
-│   ├── dlna.nix              # Media streaming
-│   ├── prom.nix              # Monitoring
+│   ├── transmission.nix      # Torrent client (Tailscale-only)
+│   ├── jellyfin.nix          # Media server with VA-API HW transcoding
+│   ├── dlna.nix              # DLNA media streaming (local network)
+│   ├── msmtp.nix             # Email notifications via Infomaniak SMTP
+│   ├── prom.nix              # Monitoring (Prometheus + Grafana Cloud)
 │   ├── firewall.nix          # nftables + NAT
 │   ├── fail2ban.nix          # Intrusion prevention
-│   ├── timers.nix            # Backup automation
-│   └── ...
+│   ├── timers.nix            # Backup, IP monitor, and maintenance timers
+│   ├── luks-sdb1.nix         # Backup disk LUKS unlock → /home/vlp/backup
+│   ├── luks-sda1.nix         # Downloads disk LUKS unlock → /mnt/downloads
+│   └── nfs-mounts.nix        # NFS mounts
 └── secrets/                   # Age-encrypted secrets
 
 ```
@@ -59,7 +65,8 @@ fr
 The server runs on static IP `192.168.1.42` with the following services:
 
 - Nextcloud: `https://nuage.vlp.fdn.fr`
-- Transmission: `https://dl.vlp.fdn.fr`
+- Jellyfin: `http://[tailscale-ip]:8096` *(Tailscale network only)*
+- Transmission: `http://[tailscale-ip]:9091` *(Tailscale network only)*
 
 ## 🔐 Secrets Management
 
@@ -77,14 +84,33 @@ Secrets are defined in `secrets/secrets.nix` and configured in `configuration.ni
 ### Backups
 
 Automated backups run via systemd timers:
-- **Nextcloud backup**: Daily at 4:00 AM → `/root/backup/nextcloud/`
-- **Remote backup**: Daily at 5:00 AM → `azul.vlp.fdn.fr:/home/vlp/backup_maison/nextcloud/`
+- **Nextcloud backup**: Daily at 4:00 AM → `/home/vlp/backup/nextcloud/` (requires `sdb1` LUKS disk mounted)
+- **Remote backup**: Daily at 5:00 AM → `azul` (Tailscale IP `100.64.0.13`) via rsync over SSH
+
+Both backup jobs send an email notification via msmtp on failure.
 
 ### Monitoring
 
 System metrics are collected by Prometheus and forwarded to Grafana Cloud for visualization: h766c70.grafana.net
 
-Timer alerts are sent from monitoring@766c70.com to contact@766c70.com
+### Email Notifications (msmtp)
+
+Notifications are sent from `monitoring@766c70.com` to `contact@766c70.com` via Infomaniak SMTP (`mail.infomaniak.com`) in the following cases:
+
+- **Backup failure**: any backup job triggers an email when it exits with an error.
+- **Public IP change**: the `my_ip` timer checks the public IP every 2 hours and sends an alert if it changes.
+
+The SMTP password is managed as an agenix secret (`secrets/mail_infomaniak.age`).
+
+### Timers overview
+
+| Timer | Schedule | Description |
+|---|---|---|
+| `backup_nc` | Daily 04:00 | Rsync Nextcloud data to local encrypted disk |
+| `remote_backup_nc` | Daily 05:00 | Rsync local backup to `azul` via Tailscale |
+| `transmission-prune-finished-30d` | Daily 06:00 | Remove Transmission torrents finished > 30 days ago |
+| `my_ip` | Every 2 hours | Check public IP; email on change |
+| `nextcloud-preview-gen` | Weekly | Pre-generate Nextcloud file previews |
 
 ### Security (fail2ban)
 
