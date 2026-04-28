@@ -77,7 +77,7 @@
     # YubiKey-backed SSH key managed by gpg-agent.
     linger = true;
   };
-  users.users.transmission.extraGroups = [ "mlc" ];
+  users.users.transmission.extraGroups = [ "users" ];
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
