@@ -134,6 +134,7 @@
   };
   age.secrets.mail_infomaniak = {
     file = ./secrets/mail_infomaniak.age;
+    owner = "vlp";
   };
   age.secrets.luks_sdb1 = {
     file = ./secrets/luks_sdb1.age;

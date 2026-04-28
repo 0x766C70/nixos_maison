@@ -5,13 +5,10 @@
 {
   programs.msmtp = {
     enable = true;
-    defaults = {
-      port = 587;
-      auth = "plain";
-      tls = "on";
-      tls_starttls = "on";
-    };
     accounts.default = {
+      auth = "on";
+      tls = "on";
+      logfile = "/var/log/msmtp.log";
       host = "mail.infomaniak.com";
       from = "monitoring@766c70.com";
       user = "monitoring@766c70.com";
