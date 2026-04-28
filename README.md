@@ -9,7 +9,7 @@ A declarative NixOS configuration for a home server providing cloud storage, med
 - **Media Server**: Jellyfin with Intel VA-API hardware transcoding (Tailscale-only); MiniDLNA for local DLNA streaming
 - **Torrent Client**: Transmission (Tailscale-only)
 - **Monitoring**: Prometheus with node exporter and Grafana Cloud integration
-- **Email Notifications**: msmtp via Infomaniak SMTP — backup failures and public IP changes sent to `contact@766c70.com`
+- **Email Notifications**: backup failures and public IP changes sent to `contact@766c70.com`
 - **Security**: fail2ban intrusion prevention for SSH, Caddy basic auth, and Nextcloud brute force protection
 - **Automated Backups**: Scheduled Nextcloud backups to local encrypted disk and remote server (via Tailscale)
 - **Encrypted Storage**: Two LUKS-encrypted disks — backup disk (`sdb1 → /home/vlp/backup`) and downloads disk (`sda1 → /mnt/downloads`)
@@ -95,12 +95,10 @@ System metrics are collected by Prometheus and forwarded to Grafana Cloud for vi
 
 ### Email Notifications (msmtp)
 
-Notifications are sent from `monitoring@766c70.com` to `contact@766c70.com` via Infomaniak SMTP (`mail.infomaniak.com`) in the following cases:
+Notifications are sent from `monitoring@766c70.com` to `contact@766c70.com` in the following cases:
 
 - **Backup failure**: any backup job triggers an email when it exits with an error.
 - **Public IP change**: the `my_ip` timer checks the public IP every 2 hours and sends an alert if it changes.
-
-The SMTP password is managed as an agenix secret (`secrets/mail_infomaniak.age`).
 
 ### Timers overview
 
