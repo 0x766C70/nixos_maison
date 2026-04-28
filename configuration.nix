@@ -132,19 +132,6 @@
     owner = "prometheus";
     group = "prometheus";
   };
-  age.secrets.caddy_mlc = {
-    file = ./secrets/caddy_mlc.age;
-    owner = "caddy";
-    group = "caddy";
-  };
-  age.secrets.caddy_vlp = {
-    file = ./secrets/caddy_vlp.age;
-    owner = "caddy";
-    group = "caddy";
-  };
-  age.secrets.mail = {
-    file = ./secrets/mail.age;
-  };
   age.secrets.mail_infomaniak = {
     file = ./secrets/mail_infomaniak.age;
   };
