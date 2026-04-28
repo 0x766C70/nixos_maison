@@ -23,8 +23,11 @@
   };
 
   # Allow the Transmission daemon to write to the NFS-backed games share.
-  # The filesystem permissions on /mnt/games are already 0775 vlp:transmission,
-  # but the hardened systemd service sandbox restricts write access to an
-  # explicit allowlist via ReadWritePaths.
-  systemd.services.transmission.serviceConfig.ReadWritePaths = [ "/mnt/games" ];
+  # The NixOS transmission module runs the daemon in a private chroot
+  # (RootDirectory=/run/transmission).  Paths must be explicitly bind-mounted
+  # into that chroot via BindPaths to be visible at all — ReadWritePaths alone
+  # is insufficient because it only controls write permissions for paths that
+  # already exist inside the root.  BindPaths creates a read-write bind mount
+  # and is therefore the correct directive here.
+  systemd.services.transmission.serviceConfig.BindPaths = [ "/mnt/games" ];
 }
