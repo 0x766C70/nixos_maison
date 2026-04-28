@@ -21,4 +21,10 @@
       lpd-enabled = true; # Local Peer Discovery — useful on LAN
     };
   };
+
+  # Allow the Transmission daemon to write to the NFS-backed games share.
+  # The filesystem permissions on /mnt/games are already 0775 vlp:transmission,
+  # but the hardened systemd service sandbox restricts write access to an
+  # explicit allowlist via ReadWritePaths.
+  systemd.services.transmission.serviceConfig.ReadWritePaths = [ "/mnt/games" ];
 }
