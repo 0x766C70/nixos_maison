@@ -86,7 +86,7 @@ Automated backups run via systemd timers:
 
 System metrics are collected by Prometheus and forwarded to Grafana Cloud for visualization: h766c70.grafana.net
 
-Timer alerts are sent from monitoring@766c70.com to vlp@fdn.fr
+Timer alerts are sent from monitoring@766c70.com to contact@766c70.com
 
 ### Security (fail2ban)
 

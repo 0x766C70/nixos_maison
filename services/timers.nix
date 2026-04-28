@@ -13,7 +13,7 @@
   systemd.services."backup-failure-notification@" = {
     description = "Send email notification on backup failure for %i";
     script = ''
-            MONITORING_EMAIL="vlp@fdn.fr"
+            MONITORING_EMAIL="contact@766c70.com"
       
             echo "Sending backup failure notification for $FAILED_SERVICE at $(date)"
       
@@ -179,7 +179,7 @@
                 # Send email notification
                 echo "Subject: Maison IP Changed
       From: monitoring@766c70.com
-      To: vlp@fdn.fr
+      To: contact@766c70.com
 
       Maison IP Address Changed
       ==========================
@@ -187,7 +187,7 @@
       Previous IP: $LAST_IP
       New IP: $CURRENT_IP
       Changed at: $(date)
-      " | ${pkgs.msmtp}/bin/msmtp vlp@fdn.fr
+      " | ${pkgs.msmtp}/bin/msmtp contact@766c70.com
           
                 # Update state file
                 echo "$CURRENT_IP" > "$STATE_FILE"
@@ -201,15 +201,15 @@
               echo "$CURRENT_IP" > "$STATE_FILE"
         
               echo "Subject: Maison IP Initial Check
-      From: maison@vlp.fdn.fr
-      To: thomas@criscione.fr
+      From: monitoring@766c70.com
+      To: contact@766c70.com
 
       Maison IP Address Monitoring Started
       =====================================
 
       Initial IP: $CURRENT_IP
       Started at: $(date)
-      " | ${pkgs.msmtp}/bin/msmtp vlp@fdn.fr
+      " | ${pkgs.msmtp}/bin/msmtp contact@766c70.com
         
               echo "Initial IP saved and notification sent"
             fi
